@@ -26,8 +26,14 @@ var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 //  heroku git:remote -a gym-attendance-api
 //  git add .
 //  git commit -am "initial commit"
-//  git push heroku master
+//  git push heroku master                     (produced: https://gym-attendance-api.herokuapp.com/ )
 //  heroku open  
+/
+//
+//  NOTE: to stop the server API use command:
+//   heroku maintenance:off
+//  to restart the server do:
+//   heroku maintenance:on 
 // -----------------------------------------------------------------------
 
 // '''''''''''''''''''''''''''''''''''''''
