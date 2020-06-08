@@ -16,17 +16,19 @@ var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 //
 //  1- Ceate a HEROKU account online, verify your email account, 
 //  2- downloaad and install the Heroku CLI for Windows 64-bit 
-//  3- make sure you also have install git in windows.
-//  4- open a cmd windows, type:
-//  cd d:\src
+//  3- make sure you also have installed git in windows.
+//  4- open windows command or the VS Code terminal windows, and type these:
+//  cd d:\src\GymAttendanceAPI  (this is where your app resides)
+//
+//  git init (Note: only if the git repo was not previously created)
 //  heroku login 
 //  heroku create gym-attendance-api
 //  cd GymAttendanceAPI
-//  git init
-//  heroku git:remote -a GymAttendanceAPI
+//  heroku git:remote -a gym-attendance-api
 //  git add .
 //  git commit -am "initial commit"
 //  git push heroku master
+//  heroku open  
 // -----------------------------------------------------------------------
 
 // '''''''''''''''''''''''''''''''''''''''
