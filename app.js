@@ -6,6 +6,9 @@
 //  npm install
 //  npm install cors --save
 //  code .   // run VS Code
+//
+// git + deployment instructuons: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment
+//
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -15,6 +18,8 @@ var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+var debug = require('debug')('users');
 
 var app = express();
 
