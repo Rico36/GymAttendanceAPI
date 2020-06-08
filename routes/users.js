@@ -11,6 +11,24 @@ var debug = require('debug')('users');
 // Read the entore list of regstered users into memory
 var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 
+// -----------------------------------------------------------------------
+//  Note:  to deploy to heroku from git repository:
+//
+//  1- Ceate a HEROKU account online, verify your email account, 
+//  2- downloaad and install the Heroku CLI for Windows 64-bit 
+//  3- make sure you also have install git in windows.
+//  4- open a cmd windows, type:
+//  cd d:\src
+//  heroku login 
+//  heroku create gym-attendance-api
+//  cd GymAttendanceAPI
+//  git init
+//  heroku git:remote -a GymAttendanceAPI
+//  git add .
+//  git commit -am "initial commit"
+//  git push heroku master
+// -----------------------------------------------------------------------
+
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the /list_user page.
 // '''''''''''''''''''''''''''''''''''''''
