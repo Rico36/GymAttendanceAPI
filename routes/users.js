@@ -6,6 +6,8 @@ const path = require('path')
 // Request File System Module
 var fs = require('fs');
 
+var debug = require('debug')('users');
+
 // Read the entore list of regstered users into memory
 var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 
@@ -14,7 +16,7 @@ var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 // '''''''''''''''''''''''''''''''''''''''
 router.get('/', function (req, res) {
 
-    console.log("Got a GET request for list of users");
+    debug ("Got a GET request for list of users");
     
     /* Just send the file as JSON*/
     res.send(users);
@@ -28,7 +30,7 @@ router.get('/', function (req, res) {
 router.get("/hhsid/:hhsid", (req, res) => {
     const itemId = req.params.hhsid;
     const item = users.find(_item => _item.hhsid === itemId);
-    console.log("Got a GET request for HHS-id: "+itemId);
+    debug ("Got a GET request for HHS-id: "+itemId);
  
     if (item) {
        res.json(item);
@@ -43,7 +45,7 @@ router.get("/hhsid/:hhsid", (req, res) => {
 router.get("/userid/:userid", (req, res) => {
   const itemId = req.params.userid;
   const item = users.find(_item => _item.userid.toLowerCase() === itemId.toLowerCase());
-  console.log("Got a GET request for user id: "+itemId);
+  debug ("Got a GET request for user id: "+itemId);
 
   if (item) {
      res.json(item);
@@ -57,7 +59,7 @@ router.get("/userid/:userid", (req, res) => {
 // '''''''''''''''''''''''''''''''''''''''
 router.post("/checkinData", (request,response) => {
    try {
-         console.log("Got a POST request with: "+ JSON.stringify(request.body));
+         debug ("Got a POST request with: "+ JSON.stringify(request.body));
          response.json('message: ok');
 
       } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
