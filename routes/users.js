@@ -22,8 +22,7 @@ var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 //
 //  git init (Note: only if the git repo was not previously created)
 //  heroku login 
-//  heroku create gym-attendance-api
-//  cd GymAttendanceAPI
+//  heroku create gym-attendance-api   (note: lowercase only. This creates a separate git repo for Heroku named: gym-attendance-api)
 //  heroku git:remote -a gym-attendance-api
 //  git add .
 //  git commit -am "initial commit"
