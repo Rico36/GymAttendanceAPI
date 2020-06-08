@@ -31,9 +31,9 @@ var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 /
 //
 //  NOTE: to stop the server API use command:
-//   heroku maintenance:off
+//   heroku maintenance:off -a gym-attendance-api
 //  to restart the server do:
-//   heroku maintenance:on 
+//   heroku maintenance:on -a gym-attendance-api 
 // -----------------------------------------------------------------------
 
 // '''''''''''''''''''''''''''''''''''''''
