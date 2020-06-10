@@ -9,7 +9,7 @@ var fs = require('fs');
 var debug = require('debug')('users');
 
 // Read the entore list of regstered users into memory
-var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
+var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 
 // -----------------------------------------------------------------------
 //  Note:  to deploy to heroku from git repository:
@@ -28,7 +28,6 @@ var users =  JSON.parse(fs.readFileSync('./data/MOCK_DATA.json', 'utf8'));
 //  git commit -am "initial commit"
 //  git push heroku master                     (produced: https://gym-attendance-api.herokuapp.com/ )
 //  heroku open  
-/
 //
 //  NOTE: to stop the server API use command:
 //   heroku maintenance:off -a gym-attendance-api       
