@@ -99,9 +99,12 @@ router.get("/userid/:userid", (req, res) => {
          const filePath = path.join(process.cwd(), '/data/data.txt');
          debug ("Got a POST request with: "+ JSON.stringify(request.body));  
          debug('filePath=' + filePath);
-         var fileSizeInBytes = 0;
+         var fileSizeInBytes = 0.0;
          checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
-         debug( "File size is " + (fileSizeInBytes / 1000000.0 ) + ' mgbs long.' ) 
+         if( fileSizeInBytes < 1)
+            debug( "File size is less thatn one megabyte (~" + (fileSizeInBytes / 1000000.0 ) + ' MB)' ) ;
+         else
+            debug( "File size is " + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
 
          // iterate through the incoming data to format it as comma separated (CSV)
          var arr = JSON.parse(JSON.stringify(request.body));
@@ -130,7 +133,7 @@ router.get("/userid/:userid", (req, res) => {
  // If it doesn't, then the file is created.
  function checkForFile(filepath, fileSizeInBytes)
  {
-     fileSizeInBytes = 0;
+     fileSizeInBytes = 0.0;
      fs.exists(filepath, function (exists) {
          if(!exists)
          {
