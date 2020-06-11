@@ -101,7 +101,7 @@ router.get("/userid/:userid", (req, res) => {
          debug('filePath=' + filePath);
          var fileSizeInBytes = 0.0;
          checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
-         if( fileSizeInBytes < 1)
+         if( fileSizeInBytes < 1.0)
             debug( "File size is less thatn one megabyte (~" + (fileSizeInBytes / 1000000.0 ) + ' MB)' ) ;
          else
             debug( "File size is " + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
