@@ -3,10 +3,12 @@ var router = express.Router();
 // Global variables
 // Request path module for relative path
 const path = require('path')
+
 // Request File System Module
 var fs = require('fs');
 
 var debug = require('debug')('users');
+var os = require("os");
 
 // Read the entore list of regstered users into memory
 var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
@@ -83,14 +85,61 @@ router.get("/userid/:userid", (req, res) => {
 // '''''''''''''''''''''''''''''''''''''''
 // POST check-in data.
 // '''''''''''''''''''''''''''''''''''''''
-router.post("/checkinData", (request,response) => {
+// router.post("/checkinData", (request,response) => {
+//    try {
+//          debug ("Got a POST request with: "+ JSON.stringify(request.body));  
+//          response.json('message: ok');
+
+//       } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
+     
+//  });
+
+ router.post("/checkinData", (request,response) => {
    try {
-         debug ("Got a POST request with: "+ JSON.stringify(request.body));
+         const filePath = path.join(process.cwd(), '/data/data.txt');
+         debug ("Got a POST request with: "+ JSON.stringify(request.body));  
+         debug('filePath=' + filePath);
+         var fileSizeInBytes = 0;
+         checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
+         debug( "File size is " + (fileSizeInBytes / 1000000.0 ) + ' mgbs long.' ) 
+
+         // iterate through the incoming data to format it as comma separated (CSV)
+         var arr = JSON.parse(JSON.stringify(request.body));
+         var records = "";
+         var cnt =0;
+         for(var i = 0; i < arr.length; i++)
+         {  cnt += 1;
+         // userid, checkin date, lattitude, longitude
+         records += arr[i].userid + ','+ arr[i].dt.trim() + ',' + arr[i].loc.lat + ','+ arr[i].loc.lng + os.EOL
+         }
+         // append data to file
+         if( cnt > 0)
+            fs.appendFile(filePath, records, 'utf8',
+               function(err) { 
+                  if (err) throw err;
+                  // if no error
+                  console.log(cnt +" new row(s) appended to file successfully.")
+               });
          response.json('message: ok');
 
       } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
      
  });
 
-
+ // checks if the file exists. 
+ // If it doesn't, then the file is created.
+ function checkForFile(filepath, fileSizeInBytes)
+ {
+     fileSizeInBytes = 0;
+     fs.exists(filepath, function (exists) {
+         if(!exists)
+         {
+            fs.closeSync(fs.openSync(filepath, 'w')); // create an empty file
+         }
+         else {
+            var stats = fs.statSync(filepath)  // otherwise, return current file size
+            fileSizeInBytes = stats["size"];
+         }
+     });
+ }
 module.exports = router;
