@@ -38,7 +38,10 @@ var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 //   heroku maintenance:on -a gym-attendance-api 
 //   heroku ps:scale web=1 --app gym-attendance-api 
 // -----------------------------------------------------------------------
-
+//  to download the ./data/data.txt file do this:
+//    heroku ps:copy ./data/data.txt --app gym-attendance-api
+//
+//
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the /list_user page.
 // '''''''''''''''''''''''''''''''''''''''
