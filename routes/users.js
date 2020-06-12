@@ -40,9 +40,10 @@ var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 // -----------------------------------------------------------------------
 //  to update with a new version 
 //    1) commit to git all code changes.  Use the vs code source control
+//    2) copy/backup the data.txt file from heroku by downloading it to a temp directory (see below) 
 //    2) git push heroku master 
 // -----------------------------------------------------------------------
-//  to download the ./data/data.txt file from heroku do this:
+//  to download the ./data/data.txt file from heroku to a temp dir do this:
 //    cd d:\src
 //    del data.txt
 //    heroku ps:copy ./data/data.txt --app gym-attendance-api
