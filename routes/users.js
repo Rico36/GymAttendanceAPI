@@ -50,7 +50,8 @@ var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 //    more data.txt  
 //
 // '''''''''''''''''''''''''''''''''''''''
-// GET request for the /list_user page.
+// GET request for the entire list of users 
+// Allows working offline!!
 // '''''''''''''''''''''''''''''''''''''''
 router.get('/', function (req, res) {
 
@@ -60,10 +61,52 @@ router.get('/', function (req, res) {
     res.send(users);
   });  
 
+//
+// '''''''''''''''''''''''''''''''''''''''
+// GET request for the entire list of check-in 
+// records currently stored.
+// '''''''''''''''''''''''''''''''''''''''
+router.get('/checkins', function (req, res, next) {
+   const filePath = path.join(process.cwd(), '/data/data.txt');
+   var fileName = "members-checkins.txt"; // The default name the browser will use
+
+   fileName = fileName.split('.').join('-' + Date.now() + '.');
+   res.download(filePath, fileName);    
+});
+
+
+// router.get('/checkins', function (req, res) {
+
+//    try {
+//       const filePath = path.join(process.cwd(), '/data/data.txt');
+//       let destFileName = path.join(process.cwd(), '/data/checkins.txt');
+//       debug ("Got a request for downloading the check-in(s) file.");  
+//       debug('filePath=' + filePath);
+//       var fileSizeInBytes = 0.0;
+//       checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
+//       if( fileSizeInBytes < 1.0)
+//          debug( "File size is less thatn one megabyte" ) ;
+//       else
+//          debug( "File size is ~" + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
+
+//      // append a date stamp to the file name
+//      destFileName = destFileName.split('.').join('-' + Date.now() + '.');
+//      fs.copyFile(filePath, destFileName, (err) => {
+//          if (err) { throw (err);  } 
+//          else {
+//             console.log('Copied data.txt to destFileName: '+destFileName);
+//          }
+//      });
+//      res.download(destFileName);
+//     //  response.json('message: ok');
+
+//    } catch (err) { console.error('GET error: '+ err); res.json('message: '+err); }
+
+//  });  
 
 
 // '''''''''''''''''''''''''''''''''''''''
-// GET record by HHS-ID .
+// GET individual record by HHS-ID .              TBD: not implemented yet
 // '''''''''''''''''''''''''''''''''''''''
 router.get("/hhsid/:hhsid", (req, res) => {
     const itemId = req.params.hhsid;
@@ -78,7 +121,7 @@ router.get("/hhsid/:hhsid", (req, res) => {
  });
 
 // '''''''''''''''''''''''''''''''''''''''
-// GET record by USER-ID .
+// GET individual record by USER-ID .             TBD: not implemented yet
 // '''''''''''''''''''''''''''''''''''''''
 router.get("/userid/:userid", (req, res) => {
   const itemId = req.params.userid;
@@ -93,17 +136,8 @@ router.get("/userid/:userid", (req, res) => {
 });
 
 // '''''''''''''''''''''''''''''''''''''''
-// POST check-in data.
+// Receive new check-in data from the field.
 // '''''''''''''''''''''''''''''''''''''''
-// router.post("/checkinData", (request,response) => {
-//    try {
-//          debug ("Got a POST request with: "+ JSON.stringify(request.body));  
-//          response.json('message: ok');
-
-//       } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
-     
-//  });
-
  router.post("/checkinData", (request,response) => {
    try {
          const filePath = path.join(process.cwd(), '/data/data.txt');
