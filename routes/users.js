@@ -71,7 +71,11 @@ router.get('/checkins', function (req, res, next) {
    var fileName = "members-checkins.txt"; // The default name the browser will use
 
    fileName = fileName.split('.').join('-' + Date.now() + '.');
-   res.download(filePath, fileName);    
+   try {
+         res.download(filePath, fileName); 
+   } catch (err) { console.error('GET error: '+ err);
+                   res.end(); res.status(404).end() ; 
+               }
 });
 
 
