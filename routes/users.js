@@ -69,7 +69,8 @@ router.get('/', function (req, res) {
 router.get("/checkins", function(req, res) {
    const filePath = path.join(process.cwd(), '/data/data.txt');
    var checkinData =  fs.readFileSync(filePath, 'utf8');
-   checkinData = checkinData.replace(/\r\n/g, "<br />");
+   checkinData = checkinData.replace(/\n/g, "<br />");
+//   checkinData = checkinData.replace(/\r\n/g, "<br />");
    checkinData = "[" + checkinData + "]";
 
     /* Just send the file */
