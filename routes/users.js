@@ -63,54 +63,67 @@ router.get('/', function (req, res) {
 
 //
 // '''''''''''''''''''''''''''''''''''''''
-// GET request for the entire list of check-in 
-// records currently stored.
+// GET request will dump the entire list of check-ins 
+// records to the browser screen.
 // '''''''''''''''''''''''''''''''''''''''
-router.get('/checkins', function (req, res, next) {
+router.get("/checkins", function(req, res) {
    const filePath = path.join(process.cwd(), '/data/data.txt');
-   var fileName = "members-checkins.txt"; // The default name the browser will use
+   var checkinData =  fs.readFileSync(filePath, 'utf8');
+   checkinData = checkinData.replace(/\r\n/g, "<br />");
+   checkinData = "[" + checkinData + "]";
 
-   fileName = fileName.split('.').join('-' + Date.now() + '.');
+    /* Just send the file */
+    res.send(checkinData);
+
+ });
+
+// '''''''''''''''''''''''''''''''''''''''
+// GET request will download the entire list of check-ins 
+// records to a file.
+// '''''''''''''''''''''''''''''''''''''''
+router.get('/checkins/download', function (req, res) {
    try {
-         res.download(filePath, fileName); 
-   } catch (err) { console.error('GET error: '+ err);
-                   res.end(); res.status(404).end() ; 
-               }
-});
+      const filePath = path.join(process.cwd(), '/data/data.txt');
+      let destFileName = path.join(process.cwd(), '/data/checkins.txt');
+      console.log ("Downloading the check-in(s) file.");  
+      debug  ('filePath=' + filePath);
+      var fileSizeInBytes = 0.0;
+      checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
+      if( fileSizeInBytes < 1.0)
+         debug ( "File size is less than one megabyte" ) ;
+      else
+         console.log ( "File size is ~" + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
 
+     // append a date stamp to the file name
+     destFileName = destFileName.split('.').join('-' + Date.now() + '.');
+     debug ('destFileName=' + destFileName);
+     readFile(filePath).then(function(results) {
+            results = "[" + results + "]";
+            // console.log  (results);
+            return writeFile(destFileName, results);
+       }).then(function(){
+         //done modifying file, send it for download
+         res.download(destFileName, function(err){
+            //CHECK FOR ERROR
+            if (err) throw err;
+            else
+               console.log('download completed!');
+               try {
+                  fs.unlinkSync(destFileName)
+                  debug("Successfully deleted the temp file.")
+                 } catch(err) {
+                     throw err
+                 }
+         }) // end download
+      }); // end .then
 
-// router.get('/checkins', function (req, res) {
+   } catch (err) { console.error('GET error: '+ err); res.json('message: '+err); }
 
-//    try {
-//       const filePath = path.join(process.cwd(), '/data/data.txt');
-//       let destFileName = path.join(process.cwd(), '/data/checkins.txt');
-//       debug ("Got a request for downloading the check-in(s) file.");  
-//       debug('filePath=' + filePath);
-//       var fileSizeInBytes = 0.0;
-//       checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
-//       if( fileSizeInBytes < 1.0)
-//          debug( "File size is less thatn one megabyte" ) ;
-//       else
-//          debug( "File size is ~" + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
-
-//      // append a date stamp to the file name
-//      destFileName = destFileName.split('.').join('-' + Date.now() + '.');
-//      fs.copyFile(filePath, destFileName, (err) => {
-//          if (err) { throw (err);  } 
-//          else {
-//             console.log('Copied data.txt to destFileName: '+destFileName);
-//          }
-//      });
-//      res.download(destFileName);
-//     //  response.json('message: ok');
-
-//    } catch (err) { console.error('GET error: '+ err); res.json('message: '+err); }
-
-//  });  
+ });  
 
 
 // '''''''''''''''''''''''''''''''''''''''
-// GET individual record by HHS-ID .              TBD: not implemented yet
+// GET individual record by HHS-ID .              TBD: It search memory. Database not implemented yet
 // '''''''''''''''''''''''''''''''''''''''
 router.get("/hhsid/:hhsid", (req, res) => {
     const itemId = req.params.hhsid;
@@ -125,7 +138,7 @@ router.get("/hhsid/:hhsid", (req, res) => {
  });
 
 // '''''''''''''''''''''''''''''''''''''''
-// GET individual record by USER-ID .             TBD: not implemented yet
+// GET individual record by USER-ID .             TBD: It search memory. Database not implemented yet
 // '''''''''''''''''''''''''''''''''''''''
 router.get("/userid/:userid", (req, res) => {
   const itemId = req.params.userid;
@@ -140,7 +153,7 @@ router.get("/userid/:userid", (req, res) => {
 });
 
 // '''''''''''''''''''''''''''''''''''''''
-// Receive new check-in data from the field.
+// Receives new check-in records from the field.
 // '''''''''''''''''''''''''''''''''''''''
  router.post("/checkinData", (request,response) => {
    try {
@@ -154,14 +167,13 @@ router.get("/userid/:userid", (req, res) => {
          else
             debug( "File size is " + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
 
-         // iterate through the incoming data to format it as comma separated (CSV)
+         // iterate through the JSON records received but stored them as comma separated format (CVS)
          var arr = JSON.parse(JSON.stringify(request.body));
-         var records = "";
          var cnt =0;
+         var records='';
          for(var i = 0; i < arr.length; i++)
          {  cnt += 1;
-         // userid, checkin date, lattitude, longitude
-         records += arr[i].userid + ','+ arr[i].dt.trim() + ',' + arr[i].loc.lat + ','+ arr[i].loc.lng + os.EOL
+            records += '{ userid: '+ arr[i].userid + ', date: '+ arr[i].dt.trim().replace(",", " ") + ', lat: ' + arr[i].loc.lat + ', lng: '+ arr[i].loc.lng + ' },'+os.EOL
          }
          // append data to file
          if( cnt > 0)
@@ -193,4 +205,27 @@ router.get("/userid/:userid", (req, res) => {
          }
      });
  }
+ function readFile(srcPath) {
+   return new Promise(function (resolve, reject) {
+       fs.readFile(srcPath, 'utf8', function (err, data) {
+           if (err) {
+               reject(err)
+           } else {
+               resolve(data);
+           }
+       });
+   })
+}
+
+function writeFile(savPath, data) {
+   return new Promise(function (resolve, reject) {
+       fs.writeFile(savPath, data, function (err) {
+           if (err) {
+               reject(err)
+           } else {
+               resolve();
+           }
+       });
+   })
+}
 module.exports = router;
