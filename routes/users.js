@@ -200,7 +200,7 @@ router.get("/userid/:userid", (req, res) => {
             debug ( 'records='+ records);
             for(var i = 0; i < arr.length; i++)
             {  cnt += 1;
-               records += '{ userid: '+ arr[i].userid + ', date: '+ arr[i].dt.trim().replace(",", " ") + ', lat: ' + arr[i].loc.lat + ', lng: '+ arr[i].loc.lng + ' },'+os.EOL
+               records += '{ "userid": "'+ arr[i].userid + '", "date": "'+ arr[i].dt.trim().replace(",", " ") + '", "lat": ' + arr[i].loc.lat + ', "lng": '+ arr[i].loc.lng + ' },'+os.EOL
             }
             // append data to file
             console.log(cnt +' records(s) appended to S3');
