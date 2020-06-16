@@ -9,12 +9,13 @@
 //
 // git + deployment instructuons: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment
 //
+const express = require('express');
 var createError = require('http-errors');
-var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var fs = require('fs');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -24,6 +25,7 @@ var debug = require('debug')('users');
 var app = express();
 
 app.use(cors({origin: 'http://localhost:3001'}));   // the actual API URL on the browser is: http://localhost:3000/users/
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -38,9 +40,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-// app.use('/data', express.static(__dirname + '/data'));  
-// app.use(express.static(__dirname + '/data')); 
-//app.use(express.static('data'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
