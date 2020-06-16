@@ -5,7 +5,7 @@ var router = express.Router();
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 //AWS.config.update({region: 'us-east-1'});
-AWS.config.loadFromPath('./aws_config.json');
+//AWS.config.loadFromPath('./aws_config.json');
 // Set the Region 
 AWS.config.update({region: 'us-east-1'});
 // AWS S3 bucket we will use to save new checkins
