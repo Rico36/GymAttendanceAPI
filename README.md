@@ -44,11 +44,11 @@ CDC fitness center attendance/checkin API - server
        d:> git commit -am "initial commit"
  OTHERWISE, MAKE SURE YOU ARE IN THE EXISTING APP'S SUB-FOLDER AND ENTER THE FOLLOWING COMMAND TO LINK THE EXISTING APP TO heorku's repo @ gym-attendance-api
     d:> heroku git:remote -a gym-attendance-api
- DEPLOY CODE CHANGES TO HEROKU:
+ DEPLOY AND RUN CHANGES IN HEROKU:
   d:> git add .
   d:> git commit -m "update commit"
   d:> git push heroku master     (produced: https://gym-attendance-api.herokuapp.com/ )
-  d:> heroku open  
+  d:> npm start    
 
  NOTE: if you get this error==>  hint: Updates were rejected because the remote contains work that you do not have locally
        try these: ( d:> git pull --rebase heroku master   and   d:> git push -f heroku master ) 
