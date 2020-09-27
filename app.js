@@ -1,26 +1,13 @@
-// .........................
-// TO CREATE A NEW NODE EXPRESS APP
-// https://expressjs.com/en/starter/generator.html
-// .........................
-// Use the application generator tool, express-generator, to quickly create an application skeleton.
-// You can run the application generator with the npx command (available in Node.js 8.2.0):
+// -----------------------------------------------------
+// Simple API for the CDC Wellness Check-in iOS app  v1.0
 //
-//  d:> npx express-generator
-//  
-// the following creates an Express app named GymAttendanceAPI:
-//  d:> express GymAttendanceAPI
-//
-// Then install dependencies:
-//  d:> cd GymAttendanceAPI
-//  d:> npm install
-//  d:> set DEBUG=GymAttendanceAPI:* & npm start  (on Windows command prompt)
-// or
-//  PS> $env:DEBUG='GymAttendanceAPI:*'; npm start    (on Windows Powershell)
-//
-//  Then load http://localhost:3000/ in your browser to access the app.
-//  or type:  code .   (to run VS Code)
-//
-// git + deployment instructions: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment
+// Author: Ricky Freyre (JRF1@CDC.GOV)  3/10/2020
+// Note: API is hosted at a heroku server but can be hosted
+// anywhere including on-prem.
+// -----------------------------------------------------------------------
+//  Note:  see README.md file for install and setup instructions
+// -----------------------------------------------------------------------
+// 
 //
 const express = require('express');
 var createError = require('http-errors');
