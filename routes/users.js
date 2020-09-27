@@ -116,7 +116,7 @@ router.get("/checkins", function(req, res) {
 //
 // in order to enable access to the S3 on my account, 
 // the AWS acces key must be found in an environment variable:   
-// 
+//  
 // If this is running in a heroku server, do this:
 // >heroku config:set AWS_ACCESS_KEY_ID=AKIAWODOEVRK6NYCWD7X AWS_SECRET_ACCESS_KEY=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
 // >heroku config:set S3_BUCKET=mybucket.freyre

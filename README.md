@@ -62,10 +62,11 @@ CDC fitness center attendance/checkin API - server
   c:> set S3_BUCKET=mybucket.freyre/input-files
   c:> set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
 
- If the API is rather deployed to the heroku server, issue these commands instead to set heroku env variables using the heroku CLI (see aws_config.json file for the keys):
+ If the API is rather deployed to the heroku server, setup environment variables using the heroku CLI (see aws_config.json file for the keys):
   d:> heroku config:set AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXX AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   d:> heroku config:set S3_BUCKET=mybucket.freyre/input-files
   d:> heroku config:set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
+  d:> heroku config:get DEBUG="users"  // do this to enable debug mode and more debug verbiage, otherwise: heroku config:get DEBUG="none"
  ......................................................................
 
 
