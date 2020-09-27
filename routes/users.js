@@ -48,10 +48,10 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 //
 //  d:> git init (Note: only if the git repo was not previously created)
 //  d:> heroku login 
-// IF THIS IS A NEW EMPTY APP, THEN DO THIS TO CREATE A NEW SUB-FOLDER FOR THE CODE
-//  d:> heroku create gym-attendance-api   (note: lowercase only. This creates a separate git repo for Heroku named: gym-attendance-api)
-// OTHERWISE, JUST BE IN THE EXISTING APP'S SUB-FOLDER AND ENTER THIS TO LINK THE FOLDER TO heorku's repo @ gym-attendance-api
-//  d:> heroku git:remote -a gym-attendance-api
+// IF THIS IS A NEW EMPTY APP YOU WANT TO LINK TO HEROKU, THEN DO THE FOLLOWING COMMAND:
+//       d:> heroku create gym-attendance-api   (note: lowercase only. This creates a separate git repo for Heroku named: gym-attendance-api)
+// OTHERWISE, MAKE SURE YOU ARE IN THE EXISTING APP'S SUB-FOLDER AND ENTER THE FOLLOWING COMMAND TO LINK THE EXISTING APP TO heorku's repo @ gym-attendance-api
+//    d:> heroku git:remote -a gym-attendance-api
 // DEPLOY:
 //  d:> git add .
 //  d:> git commit -am "initial commit"
