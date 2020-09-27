@@ -67,7 +67,7 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 // To allow the app to access AWS Buckets and file,  type these in the terminal or command line:
 // to set environmental variables.  Using the heroku CLI, type:
 //
-//  heroku config:set AWS_ACCESS_KEY_ID=AKIAILJNEBY3DOVEM33Q AWS_SECRET_ACCESS_KEY=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
+//  heroku config:set AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXX AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 //  heroku config:set S3_BUCKET=mybucket.freyre/input-files
 //  heroku config:set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
 // ......................................................................
