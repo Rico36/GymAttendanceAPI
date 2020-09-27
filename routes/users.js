@@ -55,7 +55,7 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 // DEPLOY:
 //  d:> git add .
 //  d:> git commit -am "initial commit"
-//  d:> git push heroku master                     (produced: https://gym-attendance-api.herokuapp.com/ )
+//  d:> git push heroku master    or  git push -f origin master                 (produced: https://gym-attendance-api.herokuapp.com/ )
 //  d:> heroku open  
 //
 //  NOTE: to stop the server API use command:
