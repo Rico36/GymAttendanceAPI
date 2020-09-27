@@ -137,3 +137,4 @@ aws_config.json
 .data/*.json
 data/data.json
 data/*.json
+test.js
