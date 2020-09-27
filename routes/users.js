@@ -7,6 +7,7 @@ var router = express.Router();
 // Author: Ricky Freyre (JRF1@CDC.GOV)  3/10/2020
 // Note: API is hosted at a heroku server but can be hosted
 // anywhere including on-prem.
+// NOTE: You must set a few environment variables before running !!!! See readme.md file.
 //
 // DEPLOY AND RUN IN HEROKU SERVER:
 //   d:> git commit -m "update commit"
