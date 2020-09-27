@@ -7,6 +7,12 @@ var router = express.Router();
 // Author: Ricky Freyre (JRF1@CDC.GOV)  3/10/2020
 // Note: API is hosted at a heroku server but can be hosted
 // anywhere including on-prem.
+//
+// DEPLOY AND RUN IN HEROKU SERVER:
+//   d:> git commit -m "update commit"
+//   d:> git push heroku master     (produced: https://gym-attendance-api.herokuapp.com/ )
+// OTHERWISE, RUN LOCAL:
+//   d:> npm start 
 // -----------------------------------------------------------------------
 //  Note:  see README.md file for install and setup instructions
 // -----------------------------------------------------------------------
