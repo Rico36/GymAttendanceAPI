@@ -51,9 +51,6 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
       /* Send a copy of the file back to the caller(s) (Gym iPads/iPhones)*/
       res.send(users);
    });
-
-   /* Just send the file as JSON*/
-   res.send(users);
  });  
 
  // '''''''''''''''''''''''''''''''''''''''

@@ -57,7 +57,7 @@ CDC fitness center attendance/checkin API - server
  If you are runnning tghe API from your own machine, set these env variables to allow access to the AWS Bucket and S3 files:
  to set environmental variables.  Using the heroku CLI, type:
 
-  c:> set AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXX AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  c:> set AWS_ACCESS_KEY_ID="XXXXXXXXXXXXXXX" AWS_SECRET_ACCESS_KEY="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   c:> set AWS_SDK_LOAD_CONFIG=0
   c:> set S3_BUCKET=mybucket.freyre/input-files
   c:> set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
