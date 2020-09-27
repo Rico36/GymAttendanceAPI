@@ -13,7 +13,7 @@ var router = express.Router();
 // 
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
-//AWS.config.loadFromPath('./aws_config.json');  // <== not a good idea to store secrets as a file in the root dir. (see readme.md) 
+//AWS.config.loadFromPath('./aws_config.json');  // <== not a good idea to store secrets as an unencrypted file in the root dir. (see readme.md) 
 // Set the Region 
 AWS.config.update({region: 'us-east-1'});
 // AWS S3 bucket we will use to save new checkins
