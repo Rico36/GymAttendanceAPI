@@ -1,7 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
-
+// '''''''''''''''''''''''''''''''''''''''
+// d:> npm start
+// '''''''''''''''''''''''''''''''''''''''
+//    app.get('/', function (req, res) {  // here }) // to respond to a get command
+//    app.post('/', function (req, res) {  // here })  // to respond to a post command
+//    app.put('/', function (req, res) {  // here })  // to respond to a put command
+//    app.delete('/', function (req, res) {  // here })  // to respond to a delete command
+//
+// .......................
+// 
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 //AWS.config.update({region: 'us-east-1'});
@@ -23,26 +32,28 @@ var fs = require('fs');
 var debug = require('debug')('users');
 var os = require("os");
 
-// Read the entore list of regstered users into memory
-var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
+// Holds the entire list of registered users/members in memory
+var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 
 // -----------------------------------------------------------------------
 //  Note:  to deploy to heroku from git repository:
 //
 //  1- Ceate a HEROKU account online, verify your email account, 
-//  2- downloaad and install the Heroku CLI for Windows 64-bit 
+//  2- download and install the Heroku CLI for Windows 64-bit 
+//       d:> npm install -g heroku
+//       d:> heroku --version
 //  3- make sure you also have installed git in windows.
 //  4- open windows command or the VS Code terminal windows, and type these:
-//  cd d:\src\GymAttendanceAPI  (this is where your app resides)
+//  d:> cd d:\src\GymAttendanceAPI  (this is where your app resides)
 //
-//  git init (Note: only if the git repo was not previously created)
-//  heroku login 
-//  heroku create gym-attendance-api   (note: lowercase only. This creates a separate git repo for Heroku named: gym-attendance-api)
-//  heroku git:remote -a gym-attendance-api
-//  git add .
-//  git commit -am "initial commit"
-//  git push heroku master                     (produced: https://gym-attendance-api.herokuapp.com/ )
-//  heroku open  
+//  d:> git init (Note: only if the git repo was not previously created)
+//  d:> heroku login 
+//  d:> heroku create gym-attendance-api   (note: lowercase only. This creates a separate git repo for Heroku named: gym-attendance-api)
+//  d:> heroku git:remote -a gym-attendance-api
+//  d:> git add .
+//  d:> git commit -am "initial commit"
+//  d:> git push heroku master                     (produced: https://gym-attendance-api.herokuapp.com/ )
+//  d:> heroku open  
 //
 //  NOTE: to stop the server API use command:
 //   heroku maintenance:off -a gym-attendance-api       
@@ -63,18 +74,57 @@ var users =  JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 //    more data.txt  
 //
 // '''''''''''''''''''''''''''''''''''''''
-// GET request for the entire list of users 
+// GET request for the entire list of users @ http://..../users
 // Allows working offline!!
 // '''''''''''''''''''''''''''''''''''''''
-router.get('/', function (req, res) {
+  router.get('/', function (req, res) {
 
-    debug ("Got a GET request for list of users");
-    
-    /* Just send the file as JSON*/
-    res.send(users);
-  });  
+   debug ("Got a GET request for list of users/members");
+   const filename = 'data.json';  // <== we store the membership list here
 
-//GET method route for downloading/retrieving file
+   readFile(filename, function(response) {
+      // get current membership records held in S3 storage (AWS)
+      // Keeps a copy in memory as well for fast response when clients request individuals/members verification.
+      users =  JSON.parse(''+ response)
+      /* Send a copy of the file back to the caller(s) (Gym iPads/iPhones)*/
+      res.send(users);
+   });
+
+   /* Just send the file as JSON*/
+   res.send(users);
+ });  
+
+ // '''''''''''''''''''''''''''''''''''''''
+// GET individual verification by HHS-ID .              NOTE:  search memory but could be adapted to search a Database
+// '''''''''''''''''''''''''''''''''''''''
+router.get("/hhsid/:hhsid", (req, res) => {
+   const itemId = req.params.hhsid;
+   const item = users.find(_item => _item.hhsid === itemId);
+   debug ("Got a GET request for HHS-id: "+itemId);
+
+   if (item) {
+      res.json(item);
+   } else {
+      res.json({ message: `item ${itemId} doesn't exist`})
+   }
+});
+
+// '''''''''''''''''''''''''''''''''''''''
+// GET individual verification by USER-ID .             NOTE:  search memory but could be adapted to search a Database
+// '''''''''''''''''''''''''''''''''''''''
+router.get("/userid/:userid", (req, res) => {
+ const itemId = req.params.userid;
+ const item = users.find(_item => _item.userid.toLowerCase() === itemId.toLowerCase());
+ debug ("Got a GET request for user id: "+itemId);
+
+ if (item) {
+    res.json(item);
+ } else {
+    res.json({ message: `item ${itemId} doesn't exist`})
+ }
+});
+
+// Download the list of check-ins (.JSON).  Presumably a server will do something with this list and possibly clear the list.
 router.get('/checkins/download', function(req, res){
    const filename = 'checkins.json';
    retrieveFile(filename, res);
@@ -82,7 +132,7 @@ router.get('/checkins/download', function(req, res){
 //
 // '''''''''''''''''''''''''''''''''''''''
 // GET request will dump the entire list of check-ins 
-// records to the browser screen.
+// records to the browser screen for viewing.
 // '''''''''''''''''''''''''''''''''''''''
 router.get("/checkins", function(req, res) {
    const filename = 'checkins.json';
@@ -100,89 +150,15 @@ router.get("/checkins", function(req, res) {
 
  });
 
-// '''''''''''''''''''''''''''''''''''''''
-// GET request will download the entire list of check-ins 
-// records to a file.
-// '''''''''''''''''''''''''''''''''''''''
-// router.get('/checkins/download', function (req, res) {
-//    try {
-//       const filePath = path.join(process.cwd(), '/data/data.txt');
-//       let destFileName = path.join(process.cwd(), '/data/checkins.txt');
-//       console.log ("Downloading the check-in(s) file.");  
-//       debug  ('filePath=' + filePath);
-//       var fileSizeInBytes = 0.0;
-//       checkForFile(filePath, fileSizeInBytes);  // create the output data file only if it doesn't exist
-//       if( fileSizeInBytes < 1.0)
-//          debug ( "File size is less than one megabyte" ) ;
-//       else
-//          console.log ( "File size is ~" + (fileSizeInBytes / 1000000.0 ) + ' MB(s) long.' ) ;
-
-//      // append a date stamp to the file name
-//      destFileName = destFileName.split('.').join('-' + Date.now() + '.');
-//      debug ('destFileName=' + destFileName);
-//      readFile(filePath).then(function(results) {
-//             results = "[" + results + "]";
-//             // console.log  (results);
-//             return writeFile(destFileName, results);
-//        }).then(function(){
-//          //done modifying file, send it for download
-//          res.download(destFileName, function(err){
-//             //CHECK FOR ERROR
-//             if (err) throw err;
-//             else
-//                console.log('download completed!');
-//                try {
-//                   fs.unlinkSync(destFileName)
-//                   debug("Successfully deleted the temp file.")
-//                  } catch(err) {
-//                      throw err
-//                  }
-//          }) // end download
-//       }); // end .then
-
-//    } catch (err) { console.error('GET error: '+ err); res.json('message: '+err); }
-
-//  });  
-
-
-// '''''''''''''''''''''''''''''''''''''''
-// GET individual record by HHS-ID .              TBD: It search memory. Database not implemented yet
-// '''''''''''''''''''''''''''''''''''''''
-router.get("/hhsid/:hhsid", (req, res) => {
-    const itemId = req.params.hhsid;
-    const item = users.find(_item => _item.hhsid === itemId);
-    debug ("Got a GET request for HHS-id: "+itemId);
- 
-    if (item) {
-       res.json(item);
-    } else {
-       res.json({ message: `item ${itemId} doesn't exist`})
-    }
- });
-
-// '''''''''''''''''''''''''''''''''''''''
-// GET individual record by USER-ID .             TBD: It search memory. Database not implemented yet
-// '''''''''''''''''''''''''''''''''''''''
-router.get("/userid/:userid", (req, res) => {
-  const itemId = req.params.userid;
-  const item = users.find(_item => _item.userid.toLowerCase() === itemId.toLowerCase());
-  debug ("Got a GET request for user id: "+itemId);
-
-  if (item) {
-     res.json(item);
-  } else {
-     res.json({ message: `item ${itemId} doesn't exist`})
-  }
-});
 
 // '''''''''''''''''''''''''''''''''''''''
 // Receives new check-in records from the field
-// and stores them in an AWS's S3 bucket
+// and stores/appends them in an AWS's S3 bucket file
 //
 // in order to enable access to the S3 on my account, 
-// some AWS configurations must be performed.  See: 
+// the AWS acces key must be found in an environment variable:   
 // 
-// heroku command lines needed:
+// If this is running in a heroku server, do this:
 // >heroku config:set AWS_ACCESS_KEY_ID=AKIAWODOEVRK6NYCWD7X AWS_SECRET_ACCESS_KEY=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
 // >heroku config:set S3_BUCKET=mybucket.freyre
 // '''''''''''''''''''''''''''''''''''''''
@@ -253,7 +229,7 @@ router.get("/userid/:userid", (req, res) => {
 //    })
 // }
 
-//The uploadFile function
+//The uploadFile function writes a file (targetName) into an AWS Bucket
 function uploadFile(targetName, filedata){
    debug ('preparing to upload to S3...');
    const putParams = {
@@ -272,7 +248,8 @@ function uploadFile(targetName, filedata){
    })
  };
 
- // read S3 File function
+ // read AWS S3 File into memory. This function gets a file (.json) from AWS Bucket into a memory variable that 
+ // can be accessed by the code that called this function.
 function readFile(filename, callback) {
 
    const getParams = {Bucket: 'mybucket.freyre/input-files', Key: filename};
@@ -289,7 +266,8 @@ function readFile(filename, callback) {
    });
  };
 
-//The retrieveFile function
+// retrieveFile function gets an AWS S3 file (.json) from an AWS Bucket but sends it back to the 
+// external API caller (web user/client) in the body of the web response.  
 function retrieveFile(filename,res){
 
    const getParams = {Bucket: 'mybucket.freyre/input-files', Key: filename};
@@ -300,7 +278,6 @@ function retrieveFile(filename,res){
      }
      else{
       return res.send(data.Body);
-//      return res.send('['+data.Body+']');
      }
    });
  }
