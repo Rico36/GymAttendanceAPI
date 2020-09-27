@@ -20,7 +20,7 @@
 //  Then load http://localhost:3000/ in your browser to access the app.
 //  or type:  code .   (to run VS Code)
 //
-// git + deployment instructuons: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment
+// git + deployment instructions: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment
 //
 const express = require('express');
 var createError = require('http-errors');

@@ -63,8 +63,18 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 // NOTE: if you get this error==>  hint: Updates were rejected because the remote contains work that you do not have locally
 //       try these: ( d:> git pull --rebase heroku master   and   d:> git push -f heroku master ) 
 //
+// ......................................................................
+// To allow the app to access AWS Buckets and file,  type these in the terminal or command line:
+// to set environmental variables.  Using the heroku CLI, type:
 //
-//  NOTE: to stop the server API use command:
+//  heroku config:set AWS_ACCESS_KEY_ID=AKIAILJNEBY3DOVEM33Q AWS_SECRET_ACCESS_KEY=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
+//  heroku config:set S3_BUCKET=mybucket.freyre/input-files
+//  heroku config:set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
+// ......................................................................
+//
+//
+//
+//  NOTE: to stop the heroku server API use command:
 //   heroku maintenance:off -a gym-attendance-api       
 //   heroku ps:scale web=0 --app gym-attendance-api 
 //  to restart the server do:
@@ -73,15 +83,18 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 // -----------------------------------------------------------------------
 //  to update with a new version 
 //    1) commit to git all code changes.  Use the vs code source control
-//    2) copy/backup the data.txt file from heroku by downloading it to a temp directory (see below) 
 //    2) git push heroku master 
 // -----------------------------------------------------------------------
-//  to download the ./data/data.txt file from heroku to a temp dir do this:
+//  An interesting command: download a file from heroku 
+//    example: download a file ./data/data.txt from heroku to a temp dir :
 //    cd d:\src
 //    del data.txt
 //    heroku ps:copy ./data/data.txt --app gym-attendance-api
 //    more data.txt  
 //
+
+
+
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the entire list of users @ http://..../users
 // Allows working offline!!

@@ -132,8 +132,8 @@ dist
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
-# ignore the data.txt file this app produces at runtime
+# ignore the AWS access keys (don't store secrets in github) nor the data.json file this app used for debugging and testing only.
 aws_config.json
-.data/*.txt
-data/data.txt
-data/*.txt
+.data/*.json
+data/data.json
+data/*.json
