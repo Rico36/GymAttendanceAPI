@@ -64,14 +64,18 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 //       try these: ( d:> git pull --rebase heroku master   and   d:> git push -f heroku master ) 
 //
 // ......................................................................
-// To allow the app to access AWS Buckets and file,  type these in the terminal or command line:
+// If you are runnning tghe API from your own machine, set these env variables to allow access to the AWS Bucket and S3 files:
 // to set environmental variables.  Using the heroku CLI, type:
 //
-//  heroku config:set AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXX AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-//  heroku config:set S3_BUCKET=mybucket.freyre/input-files
-//  heroku config:set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
-// ......................................................................
+//  c:> set AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXX AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//  c:> set S3_BUCKET=mybucket.freyre/input-files
+//  c:> set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
 //
+// If the API is rather deployed to the heroku server, issue these commands instead to set heroku env variables using the heroku CLI (see aws_config.json file for the keys):
+//  d:> heroku config:set AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXX AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//  d:> heroku config:set S3_BUCKET=mybucket.freyre/input-files
+//  d:> heroku config:set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
+// ......................................................................
 //
 //
 //  NOTE: to stop the heroku server API use command:
