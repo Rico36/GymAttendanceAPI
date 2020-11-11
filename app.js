@@ -27,12 +27,17 @@ var logger = require('morgan');
 var cors = require('cors');
 var fs = require('fs');
 var http = require('http');
-//For https   (https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-apache-in-ubuntu-16-04)
+//For https   (https://stackoverflow.com/questions/21397809/create-a-trusted-self-signed-ssl-cert-for-localhost-for-use-with-express-node)
+// CD D:\project\certificates\
+// D:> openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout cert.key -out cert.pem -config req.cnf -sha256
+//
 const https = require('https');
-var privateKey = fs.readFileSync('certificates/server.key','utf8');
-var certificate = fs.readFileSync('certificates/server.cert','utf8');
-//  ca: fs.readFileSync('certificates/ca_bundle.crt')
-var credentials = {key: privateKey, cert: certificate};
+const httpsOptions = {
+  key: fs.readFileSync('./certificates/cert.key'),
+  cert: fs.readFileSync('./certificates/cert.pem')
+  //  ca: fs.readFileSync('certificates/ca_bundle.crt')
+}
+
 
 
 var indexRouter = require('./routes/index');
@@ -68,14 +73,15 @@ app.use(function(err, req, res, next) {
 });
 
 var forceSsl = function (req, res, next) {
- if (req.headers['x-forwarded-proto'] !== 'https') {
-     //console.log("typw:"+req.headers['x-forwarded-proto'] )
+  console.log('forceSSL' )
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+     console.log("type:"+req.headers['x-forwarded-proto'] )
      return res.redirect(['https://', req.get('Host'), req.url].join(''));
  }
  return next();
 };
 
-var httpsServer = https.createServer(credentials, app);
+var httpsServer = https.createServer(httpsOptions, app);
 
 if (env != 'production') {
   // Only the Development environment allows non-SSL calls
