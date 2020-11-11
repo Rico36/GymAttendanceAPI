@@ -1,6 +1,6 @@
 {
   "name": "gymattendanceapi",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "engines": {
     "node": "12.16.2"
   },
@@ -16,6 +16,7 @@
     "debug": "~2.6.9",
     "ejs": "2.x",
     "express": "~4.16.1",
+    "helmet": "^4.2.0",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1"

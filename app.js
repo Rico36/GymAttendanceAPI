@@ -2,36 +2,47 @@
 // Simple API for the CDC Wellness Check-in iOS app  v1.0
 //
 // Author: Ricky Freyre (JRF1@CDC.GOV)  3/10/2020
-// Note: API is hosted at a heroku server but can be hosted
-// anywhere including on-prem.
+// Note: API can be hosted anywhere including on-prem.
 // -----------------------------------------------------------------------
 //  Note:  see README.md file for install and setup instructions
 // -----------------------------------------------------------------------
 // 
+// openssl req -x509 -newkey rsa:2048 -keyout server.key -out server.cert -days 365
+// openssl rsa -in server.key -out server.pem     //(decrypted keys)
+//
+//
 //
 const express = require('express');
-var createError = require('http-errors');
+var app = express();
+env = process.env.NODE_ENV || 'development';
+var helmet = require('helmet');
+
+// Determine port to listen on
+var httpPort = (process.env.PORT || process.env.VCAP_APP_PORT || 8300);
+var httpsPort = (process.env.HTTPSPORT || 8443);
 var path = require('path');
+var createError = require('http-errors');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 var fs = require('fs');
+var http = require('http');
+//For https   (https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-apache-in-ubuntu-16-04)
+const https = require('https');
+var privateKey = fs.readFileSync('certificates/server.key','utf8');
+var certificate = fs.readFileSync('certificates/server.cert','utf8');
+//  ca: fs.readFileSync('certificates/ca_bundle.crt')
+var credentials = {key: privateKey, cert: certificate};
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
 var debug = require('debug')('users');
 
-var app = express();
-
-app.use(cors({origin: 'http://localhost:3001'}));   // the actual API URL on the browser is: http://localhost:3000/users/
-
-
+app.enable('trust proxy');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -39,13 +50,12 @@ app.use(express.static(path.join(__dirname, 'public')));  // to serve static fil
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-
+//app.use(helmet());
+app.use(logger('dev'));
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
-
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
@@ -56,5 +66,33 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+var forceSsl = function (req, res, next) {
+ if (req.headers['x-forwarded-proto'] !== 'https') {
+     //console.log("typw:"+req.headers['x-forwarded-proto'] )
+     return res.redirect(['https://', req.get('Host'), req.url].join(''));
+ }
+ return next();
+};
+
+var httpsServer = https.createServer(credentials, app);
+
+if (env != 'production') {
+  // Only the Development environment allows non-SSL calls
+  var httpServer = http.createServer(app);
+  httpServer.listen(httpPort, () => {
+    console.log("Http server listing on port : " + httpPort)
+  });
+}
+httpsServer.listen(httpsPort, () => {
+  console.log("Https server listing on port : " + httpsPort)
+  app.use(forceSsl);
+});
+
+if (env === 'production') {
+  console.log('We are in production. Non-SSL calls will be auto-redirected to SSL.')
+  app.use(forceSsl);
+}
+
 
 module.exports = app;
