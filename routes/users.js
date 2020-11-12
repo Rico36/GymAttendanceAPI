@@ -4,7 +4,7 @@ var router = express.Router();
 // -----------------------------------------------------
 // Simple API for the CDC Wellness Check-in iOS app  v1.0
 //
-// Author: Ricky Freyre (JRF1@CDC.GOV)  3/10/2020
+// Author: Ricky Freyre -  3/10/2020
 // Note: This API can be hosted in Linux, FreeBSD, Windows and OS X. 
 // NOTE: You must set a few environment variables before running !!!! See readme.md file.
 //
