@@ -189,23 +189,4 @@ function writeFile(savPath, data) {
    })
 }
 
-//The uploadFile function writes a file (targetName) into an AWS Bucket
-// function uploadFile(targetName, filedata){
-//    debug ('preparing to upload to S3...');
-//    const putParams = {
-//       Bucket      : 'mybucket.freyre/input-files',
-//       Key         : targetName,
-//       Body        : filedata
-//    };
-//    s3.putObject(putParams, function(err, data){
-//       if (err) {
-//          console.log('Could not upload the file. Error :',err);
-//          throw err;
-//       } 
-//       else{
-//          debug('Successfully uploaded Check-in data to S3');
-//       }
-//    })
-//  };
-
 module.exports = router;
