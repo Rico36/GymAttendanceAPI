@@ -1,10 +1,6 @@
 // NOTE: This file (.JS) is not meant to be compiled nor stored in github.  It is only for dev tests/experiment
 //
-// Create these rather as environmental variables in heroku.  Use the heroku CLI and type:
-//
-//  heroku config:set AWS_ACCESS_KEY_ID=AKIAILJNEBY3DOVEM33Q AWS_SECRET_ACCESS_KEY=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
-//  heroku config:set S3_BUCKET=mybucket.freyre/input-files
-//  heroku config:set OCD_API_KEY=30a4c59e59034c0695a7ddef172f0ecf
+// See SECRETS.md for environment variables needed
 //
 //
 //  npm install opencage-api-client
