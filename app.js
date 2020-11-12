@@ -1,7 +1,7 @@
 // -----------------------------------------------------
 // Simple API for the CDC Wellness Check-in iOS app  v1.0
 //
-// Author: Ricky Freyre (JRF1@CDC.GOV)  3/10/2020
+// Author: Ricky Freyre -  3/10/2020
 // Note: API can be hosted anywhere including on-prem.
 // -----------------------------------------------------------------------
 //  Note:  see README.md file for install and setup instructions
