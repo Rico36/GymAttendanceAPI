@@ -70,7 +70,6 @@ sudo ufw allow 53
 sudo ufw allow ssh
 sudo ufw allow 22
 sudo ufw allow 8300/tcp
-sudo ufw allow 8443/tcp
 sudo ufw allow 'Samba'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
@@ -85,6 +84,9 @@ sudo mkdir MembersData
 sudo chmod 0777 /opt/FitnesssCenterSrv/MembersData
 ## change owenership of the /MembersData sub-folder to me :-)
 sudo chown freyrri:root /opt/FitnessCenterSrv/MembersData
+eval $"sudo cp $base_dir/data.json /opt/FitnessCenterSrv/MembersData/" 
+eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/" 
+eval $"sudo cp $base_dir/checkins.json /opt/FitnessCenterSrv/MembersData/" 
 #
 #
 # START the SAMBA server
