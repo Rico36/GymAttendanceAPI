@@ -7,8 +7,10 @@
 //  Note:  see README.md file for install and setup instructions
 // -----------------------------------------------------------------------
 // 
-// openssl req -x509 -newkey rsa:2048 -keyout server.key -out server.cert -days 365
-// openssl rsa -in server.key -out server.pem     //(decrypted keys)
+// When things goe bad with GIT, just restore from GIT and discard all local uncommited changes
+// git reset --hard origin/master
+// git pull origin master
+// NOTE: using git reset --hard will discard any local uncommitted changes,
 //
 //
 //
