@@ -36,7 +36,7 @@ sudo git config --global push.default "matching"
 sudo git config --global branch.autosetuprebase always
 sudo git config --global color.status auto
 sudo git config --global color.branch auto
-sudo git fetch -all
+sudo git fetch --all
 sudo git reset --hard origin/master
 #sudo git config branch.master.remote origin
 #sudo git config branch.master.merge refs/heads/master
