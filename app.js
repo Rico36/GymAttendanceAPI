@@ -19,7 +19,6 @@ var helmet = require('helmet');
 
 // Determine port to listen on
 var httpPort = (process.env.PORT || process.env.VCAP_APP_PORT || 8300);
-var httpsPort = (process.env.HTTPSPORT || 8443);
 var path = require('path');
 var createError = require('http-errors');
 var cookieParser = require('cookie-parser');
@@ -27,18 +26,6 @@ var logger = require('morgan');
 var cors = require('cors');
 var fs = require('fs');
 var http = require('http');
-//For https   (https://stackoverflow.com/questions/21397809/create-a-trusted-self-signed-ssl-cert-for-localhost-for-use-with-express-node)
-// CD D:\project\certificates\
-// D:> openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout cert.key -out cert.pem -config req.cnf -sha256
-//
-const https = require('https');
-const httpsOptions = {
-  key: fs.readFileSync('./certificates/cert.key'),
-  cert: fs.readFileSync('./certificates/cert.pem')
-  //  ca: fs.readFileSync('certificates/ca_bundle.crt')
-}
-
-
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -72,33 +59,10 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-var forceSsl = function (req, res, next) {
-  console.log('forceSSL' )
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-     console.log("type:"+req.headers['x-forwarded-proto'] )
-     return res.redirect(['https://', req.get('Host'), req.url].join(''));
- }
- return next();
-};
-
-var httpsServer = https.createServer(httpsOptions, app);
-
-if (env != 'production') {
-  // Only the Development environment allows non-SSL calls
-  var httpServer = http.createServer(app);
-  httpServer.listen(httpPort, () => {
-    console.log("Http server listing on port : " + httpPort)
-  });
-}
-httpsServer.listen(httpsPort, () => {
-  console.log("Https server listing on port : " + httpsPort)
-  app.use(forceSsl);
+// Instantiate the HTTP server
+var httpServer = http.createServer(app);
+httpServer.listen(httpPort, () => {
+  console.log("Http server listing on port : " + httpPort)
 });
-
-if (env === 'production') {
-  console.log('We are in production. Non-SSL calls will be auto-redirected to SSL.')
-  app.use(forceSsl);
-}
-
 
 module.exports = app;

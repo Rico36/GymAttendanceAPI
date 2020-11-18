@@ -135,4 +135,4 @@ dist
 # ignore the AWS access keys (don't store secrets in github) nor the data.json file this app used for debugging and testing only.
 aws_config.json
 secrets.md
-.data/data.json
+
