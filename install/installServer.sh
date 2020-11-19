@@ -38,8 +38,6 @@ sudo git config --global color.status auto
 sudo git config --global color.branch auto
 sudo git fetch --all
 sudo git reset --hard origin/master
-#sudo git config branch.master.remote origin
-#sudo git config branch.master.merge refs/heads/master
 #git pull
 #install dependencies
 npm install
