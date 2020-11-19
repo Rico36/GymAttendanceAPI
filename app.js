@@ -67,8 +67,12 @@ httpServer.listen(httpPort, "127.0.0.1", () => {
   console.log("Http server at http://127.0.0.1:" + httpPort)
 });
 
-app.get('/', function(req, res) {
-  res.redirect('/index.html');
-});
+// app.get('/', function(req, res) {
+//   res.redirect('/index.html');
+// });
+
+app.get('/', function (req, res) {
+  res.render('index', { title: 'Hey', message: 'Hello there!' })
+})
 
 module.exports = app;
