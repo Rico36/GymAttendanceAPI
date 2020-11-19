@@ -63,8 +63,12 @@ app.use(function(err, req, res, next) {
 
 // Instantiate the HTTP server
 var httpServer = http.createServer(app);
-httpServer.listen(httpPort, () => {
-  console.log("Http server listing on port : " + httpPort)
+httpServer.listen(httpPort, "127.0.0.1", () => {
+  console.log("Http server at http://127.0.0.1:" + httpPort)
+});
+
+app.get('/', function(req, res) {
+  res.redirect('/index.html');
 });
 
 module.exports = app;
