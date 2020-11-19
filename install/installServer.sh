@@ -74,17 +74,17 @@ sudo ufw allow 'Nginx HTTPS'
 sudo ufw status verbose
 #
 #
-## Give ownership of the server to the ROOT
-sudo chown root:root /opt/FitnessCenterSrv
-sudo chmod 755 /opt/FitnessCenterSrv
+## Create the /MembersData sub-folder 
 sudo mkdir MembersData
-## change owenership of the /MembersData sub-folder to me :-)
 sudo chmod 0777 /opt/FitnesssCenterSrv/MembersData
 ## change owenership of the /MembersData sub-folder to me :-)
-sudo chown freyrri:root /opt/FitnessCenterSrv/MembersData
+sudo chown freyrri:www-data /opt/FitnessCenterSrv/MembersData
 eval $"sudo cp $base_dir/data.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/checkins.json /opt/FitnessCenterSrv/MembersData/" 
+## Give ownership of the server to the www-data user
+sudo chown www-data:www-data /opt/FitnessCenterSrv/
+sudo chmod g+w /opt/FitnessCenterSrv/
 #
 #
 # START the SAMBA server
@@ -102,7 +102,6 @@ sudo systemctl restart nmbd
 ## install the latest version of Nginx from the official repository
 sudo wget --quiet http://nginx.org/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
 sudo apt install nginx -y
-sudo unlink /etc/nginx/sites-enabled/default
 sudo rm /etc/nginx/sites-enabled/default
 cd /etc/nginx/sites-available
 eval $"sudo cp $base_dir/reverse-proxy.conf /etc/nginx/sites-available/"
