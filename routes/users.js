@@ -29,18 +29,18 @@ var os = require("os");
 
 // Holds the entire list of registered users/members in memory
 var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
+
+// Create file logging
 const log4js = require("log4js");
 log4js.configure({
-  appenders: { reg: { type: "file", filename: "registered_devices.log" },
-                unreg: { type: "file", filename: "unregistered_devices.log" },
-                error: { type: "file", filename: "error.log" }},
-  categories: { default: { appenders: ["reg"], level: "info" },
-                default: { appenders: ["unreg"], level: "info" },
-                default: { appenders: ["error"], level: "info" } }
-});
- const unreg_logger = log4js.getLogger("unreg");
- const reg_logger = log4js.getLogger("reg");
- const logger = log4js.getLogger("error");
+   appenders: {
+     multi: { type: 'multiFile', base: 'logs/', property: 'categoryName', extension: '.log' }
+   },
+   categories: {
+     default: { appenders: [ 'multi' ], level: 'debug' }
+   }
+ });
+
 
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the entire list of users @ http://..../users
@@ -110,22 +110,27 @@ router.post("/deviceReg", (request,res) => {
              res.set('Content-Type', 'text/json');
              if (approvedDevice) {
                res.status(200).send(approvedDevice);
-               reg_logger.info(JSON.stringify(request.body));
-               reg_logger.info(JSON.stringify(approvedDevice) + " / "+ `sessionID: ${data.sessionID}`);
+               const logger = log4js.getLogger('regDevices');
+               logger.info(JSON.stringify(request.body));
+               logger.info(JSON.stringify(approvedDevice) + " / "+ `sessionID: ${data.sessionID}`);
               // console.log( "Response: " + approvedDevice);
             } else {
                json = { message: `Device ${data.deviceToken} not registered.`};
-               unreg_logger.info(`Device named: ${data.name}, deviceToken: ${data.deviceToken} `);
+               const logger = log4js.getLogger('UnregDevices');
+               logger.info(`Device named: ${data.name}, deviceToken: ${data.deviceToken} `);
                //console.log( "Response: " + JSON.stringify(json));
                res.status(404).send(json);
             }
          }).catch(err => {
             // Will not execute
-            logger.info("/deviceReg: "+err.message);
+            const logger = log4js.getLogger('error');
+            logger.error("/deviceReg: "+err.message);
             console.log('caught', err.message);
           });
    
-      } catch (err) { logger.info("/deviceReg: "+err); response.json('message: '+err); }
+      } catch (err) { 
+                  const logger = log4js.getLogger('error');
+                  logger.error("/deviceReg: "+err); response.json('message: '+err); }
      
  });
 
@@ -141,7 +146,8 @@ router.get('/checkins/download', function(req, res){
       res.set('Content-Type', 'text/json');
       res.status(200).send(fileContent);
    }).catch(err => {
-      logger.info("/checkins/download: "+err.message);
+      const logger = log4js.getLogger('error');
+      logger.error("/checkins/download: "+err.message);
       console.log('caught', err.message);
       });
 });
@@ -160,7 +166,8 @@ router.get("/checkins", function(req, res) {
       /* return a copy of the entire file */
       res.send(checkinData);
    }).catch(err => {
-      logger.info("/checkins: "+err.message);
+      const logger = log4js.getLogger('error');
+      logger.error("/checkins: "+err.message);
       console.log('caught', err.message);
       });
  });
@@ -192,12 +199,17 @@ router.get("/checkins", function(req, res) {
                writeFile(config.checkinData, records) // save the new check-in record(s) 
                   .catch(err => {
                      // Will not execute
-                     console.log('caught', err.message);
+                           const logger = log4js.getLogger('error');
+                           logger.error("/checkinData: "+err.message);
+                           console.log('caught', err.message);
                      });
           });
           response.json('message: ok');
 
-      } catch (err) { logger.info("/checkinData: "+err); response.json('message: '+err); }
+      } catch (err) { 
+               const logger = log4js.getLogger('error');
+               logger.error("/checkinData: "+err);
+                response.json('message: '+err); }
      
  });
 

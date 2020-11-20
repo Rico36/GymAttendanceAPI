@@ -79,7 +79,9 @@ sudo ufw status verbose
 ## Create the /MembersData sub-folder 
 sudo mkdir MembersData
 sudo chmod 0777 /opt/FitnesssCenterSrv/MembersData
+sudo mkdir logs
 ## change owenership of the /MembersData sub-folder to me :-)
+sudo chown freyrri:www-data /opt/FitnessCenterSrv/logs
 sudo chown freyrri:www-data /opt/FitnessCenterSrv/MembersData
 eval $"sudo cp $base_dir/data.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/" 
