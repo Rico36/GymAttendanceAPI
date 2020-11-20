@@ -1,4 +1,5 @@
 {
-    "membersData" : "/opt/FitnessCenterSrv/MembersData/data.json",
-    "checkinData" : "/opt/FitnessCenterSrv/MembersData/checkins.json"
+    "membersData" : "//RICKYPC/data/data.json",
+    "checkinData" : "//RICKYPC/data/checkins.json",
+    "devices" : "//RICKYPC/data/devices.json"
 }

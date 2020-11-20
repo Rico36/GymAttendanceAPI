@@ -82,6 +82,7 @@ sudo chown freyrri:www-data /opt/FitnessCenterSrv/MembersData
 eval $"sudo cp $base_dir/data.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/checkins.json /opt/FitnessCenterSrv/MembersData/" 
+eval $"sudo cp $base_dir/devices.json /opt/FitnessCenterSrv/MembersData/" 
 ## Give ownership of the server to the www-data user
 sudo chown www-data:www-data /opt/FitnessCenterSrv/
 sudo chmod g+w /opt/FitnessCenterSrv/

@@ -80,6 +80,42 @@ router.get("/userid/:userid", (req, res) => {
  }
 });
 
+
+// '''''''''''''''''''''''''''''''''''''''
+// Receives deviceTokens 
+// Returns approval plus other device fonfig data.
+// '''''''''''''''''''''''''''''''''''''''
+router.post("/deviceReg", (request,res) => {
+   try {
+         debug ("Got a POST request with: "+ JSON.stringify(request.body));  
+         // iterate through the JSON records received but stored them as comma separated format (CVS)
+         var data = JSON.parse(JSON.stringify(request.body));
+         console.log( "Content: " + JSON.stringify(request.body));
+         console.log( "DeviceToken: " + data.deviceToken);
+         readFile(config.devices).then(function (deviceData) {
+             devices =  JSON.parse(deviceData)
+             var approvedDevice = devices.find(_device => _device.deviceToken === data.deviceToken);
+             res.set('Content-Type', 'text/json');
+             if (approvedDevice) {
+               console.log( "Response: " + approvedDevice);
+               res.status(200).send(approvedDevice);
+            } else {
+               json = { message: `Device ${data.deviceToken} not registered.`}
+               console.log( "Response: " + JSON.stringify(json));
+               res.status(404).send(json);
+            }
+         }).catch(err => {
+            // Will not execute
+            console.log('caught', err.message);
+          });
+   
+      } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
+     
+ });
+
+
+
+
 // Download the list of check-ins (.JSON).  Presumably a server will do something with this list and possibly clear the list.
 router.get('/checkins/download', function(req, res){
    // get current pending check-in records held in shared drive
