@@ -63,7 +63,7 @@ app.use(function(err, req, res, next) {
 
 // Instantiate the HTTP server
 var httpServer = http.createServer(app);
-//httpServer.listen(httpPort, () => {
+// httpServer.listen(httpPort, () => {     // <== for debug purpose
 httpServer.listen(httpPort, "127.0.0.1", () => {
   console.log("Http server at http://127.0.0.1:" + httpPort)
 });

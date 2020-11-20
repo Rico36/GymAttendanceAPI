@@ -29,7 +29,18 @@ var os = require("os");
 
 // Holds the entire list of registered users/members in memory
 var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
-
+const log4js = require("log4js");
+log4js.configure({
+  appenders: { reg: { type: "file", filename: "registered_devices.log" },
+                unreg: { type: "file", filename: "unregistered_devices.log" },
+                error: { type: "file", filename: "error.log" }},
+  categories: { default: { appenders: ["reg"], level: "info" },
+                default: { appenders: ["unreg"], level: "info" },
+                default: { appenders: ["error"], level: "info" } }
+});
+ const unreg_logger = log4js.getLogger("unreg");
+ const reg_logger = log4js.getLogger("reg");
+ const logger = log4js.getLogger("error");
 
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the entire list of users @ http://..../users
@@ -46,6 +57,7 @@ var users =  null // JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
       res.send(users);
    }).catch(err => {
       // Will not execute
+      logger.info("/users caught error: "+err.message);
       console.log('caught', err.message);
     });
  });  
@@ -97,19 +109,23 @@ router.post("/deviceReg", (request,res) => {
              var approvedDevice = devices.find(_device => _device.deviceToken === data.deviceToken);
              res.set('Content-Type', 'text/json');
              if (approvedDevice) {
-               console.log( "Response: " + approvedDevice);
                res.status(200).send(approvedDevice);
+               reg_logger.info(JSON.stringify(request.body));
+               reg_logger.info(JSON.stringify(approvedDevice) + " / "+ `sessionID: ${data.sessionID}`);
+              // console.log( "Response: " + approvedDevice);
             } else {
-               json = { message: `Device ${data.deviceToken} not registered.`}
-               console.log( "Response: " + JSON.stringify(json));
+               json = { message: `Device ${data.deviceToken} not registered.`};
+               unreg_logger.info(`Device named: ${data.name}, deviceToken: ${data.deviceToken} `);
+               //console.log( "Response: " + JSON.stringify(json));
                res.status(404).send(json);
             }
          }).catch(err => {
             // Will not execute
+            logger.info("/deviceReg: "+err.message);
             console.log('caught', err.message);
           });
    
-      } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
+      } catch (err) { logger.info("/deviceReg: "+err); response.json('message: '+err); }
      
  });
 
@@ -125,7 +141,7 @@ router.get('/checkins/download', function(req, res){
       res.set('Content-Type', 'text/json');
       res.status(200).send(fileContent);
    }).catch(err => {
-      // Will not execute
+      logger.info("/checkins/download: "+err.message);
       console.log('caught', err.message);
       });
 });
@@ -144,7 +160,7 @@ router.get("/checkins", function(req, res) {
       /* return a copy of the entire file */
       res.send(checkinData);
    }).catch(err => {
-      // Will not execute
+      logger.info("/checkins: "+err.message);
       console.log('caught', err.message);
       });
  });
@@ -181,7 +197,7 @@ router.get("/checkins", function(req, res) {
           });
           response.json('message: ok');
 
-      } catch (err) { console.error('POST error: '+ err); response.json('message: '+err); }
+      } catch (err) { logger.info("/checkinData: "+err); response.json('message: '+err); }
      
  });
 
