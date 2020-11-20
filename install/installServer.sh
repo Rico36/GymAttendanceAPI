@@ -1,5 +1,6 @@
 # INSTALL ##
 base_dir=$PWD
+USER = "freyrri"
 ##
 #install oracle java
 #sudo add-apt-repository ppa:webupd8team/java
@@ -16,7 +17,8 @@ sudo apt-get install git
 ## The folder /Opt is reserved by Linux for additional software we little humans may install. 
 ## This is kind of like ‘Program Files’ for linux.
 sudo mkdir /opt/FitnessCenterSrv
-sudo chown root:freyrri /opt/FitnessCenterSrv
+sudo gpasswd -a "$USER" www-data
+
 ## Install node-js, npm 
 sudo apt-get update && apt-get -y upgrade
 cd /opt/FitnesssCenterSrv
@@ -84,8 +86,9 @@ eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/"
 eval $"sudo cp $base_dir/checkins.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/devices.json /opt/FitnessCenterSrv/MembersData/" 
 ## Give ownership of the server to the www-data user
-sudo chown www-data:www-data /opt/FitnessCenterSrv/
-sudo chmod g+w /opt/FitnessCenterSrv/
+sudo chown -R "$USER":www-data /opt/FitnessCenterSrv
+find /opt/FitnessCenterSrv -type f -exec chmod 0660 {} \;
+sudo find /opt/FitnessCenterSrv -type d -exec chmod 2770 {} \;
 #
 #
 # START the SAMBA server
@@ -124,8 +127,10 @@ pm2 start app.js --watch --ignore-watch="[node_modules, MembersData]" --name="Fi
 pm2 startup systemd
 #
 #
+echo "----------------------------------------------------------------------------------------"
 echo "NOTE: make sure valid certificates (.cert + .key) files are found in the /sec/cert folder"
 echo "Enter cert name changes in /etc/nginx/snippets/self-signed.conf"
+echo "----------------------------------------------------------------------------------------"
 #Optionally, run the web server app manually
 #cd /opt/FitnessCenterSrv
 #npm start

@@ -14,6 +14,7 @@ sudo nginx -t
 sudo systemctl start nginx
 sudo pm2 start app.js --watch --ignore-watch="[BAK, MembersData]" --name="Fitness Center App"
 sudo pm2 startup systemd
+sudo systemctl status nginx
 sudo pm2 status
 #
 sudo service smbd restart
