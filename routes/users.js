@@ -57,6 +57,7 @@ log4js.configure({
       res.send(users);
    }).catch(err => {
       // Will not execute
+      const logger = log4js.getLogger('error');
       logger.info("/users caught error: "+err.message);
       console.log('caught', err.message);
     });
