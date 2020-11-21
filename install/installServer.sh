@@ -1,3 +1,4 @@
+#!/bin/bash
 # INSTALL ##
 base_dir=$PWD
 USER = "freyrri"
@@ -17,7 +18,15 @@ sudo apt-get install git
 ## The folder /Opt is reserved by Linux for additional software we little humans may install. 
 ## This is kind of like ‘Program Files’ for linux.
 sudo mkdir /opt/FitnessCenterSrv
-sudo gpasswd -a "$USER" www-data
+## Create a group to hold the list of accounts that can access the shared drives in SAMBA
+sudo groupadd sambashare
+# Create group for admin accounts who need full access to all data and system files
+sudo groupadd APIService
+## add me to these groups :-)
+sudo gpasswd -a "$USER" sambashare
+sudo gpasswd -a "$USER" APIService
+sudo gpasswd -a labadmin APIService
+
 
 ## Install node-js, npm 
 sudo apt-get update && apt-get -y upgrade
@@ -54,7 +63,7 @@ sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
 sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
 sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
 sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "valid users = freyrri" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
 sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
 sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
 sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
@@ -70,32 +79,68 @@ sudo ufw allow 53
 sudo ufw allow ssh
 sudo ufw allow 22
 sudo ufw allow 8300/tcp
+##Ports 5357/tcp and 3702/udp need to be open for wsdd to run.
+sudo ufw allow 137/tcp
+sudo ufw allow 138/tcp
+sudo ufw allow 139/tcp
+sudo ufw allow 445/tcp
+sudo ufw allow 5357/tcp
+sudo ufw allow 3702/udp
 sudo ufw allow 'Samba'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw status verbose
 #
 #
-## Create the /MembersData sub-folder 
+## Create the sub-folders 
 sudo mkdir MembersData
-sudo chmod 0777 /opt/FitnesssCenterSrv/MembersData
+sudo mkdir Uploads
 sudo mkdir logs
-## change owenership of the /MembersData sub-folder to me :-)
-sudo chown freyrri:www-data /opt/FitnessCenterSrv/logs
-sudo chown freyrri:www-data /opt/FitnessCenterSrv/MembersData
+sudo chmod 2777 /opt/FitnesssCenterSrv/MembersData
+## load the default JSON files into the /MembersData
 eval $"sudo cp $base_dir/data.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/checkins.json /opt/FitnessCenterSrv/MembersData/" 
 eval $"sudo cp $base_dir/devices.json /opt/FitnessCenterSrv/MembersData/" 
-## Give ownership of the server to the www-data user
-sudo chown -R "$USER":www-data /opt/FitnessCenterSrv
+## change ownership of these sub-folders accordinly
+sudo chown -R root:APIService /opt/FitnessCenterSrv/Uploads
+sudo chown -R root:APIService /opt/FitnessCenterSrv/logs
+sudo chown -R root:APIService /opt/FitnessCenterSrv/MembersData
+
+## ########################
+## SAMBA
+##  https://linuxconfig.org/how-to-configure-samba-server-share-on-ubuntu-18-04-bionic-beaver-linux
+##  https://stackoverflow.com/questions/24933661/multiple-connections-to-a-server-or-shared-resource-by-the-same-user-using-more
+##  https://devanswers.co/discover-ubuntu-machines-samba-shares-windows-10-network/
+## https://www.digitalocean.com/community/tutorials/how-to-set-up-a-samba-share-for-a-small-organization-on-ubuntu-16-04
+##
+## Add "fitnessUser" as a new user in sambashare group  / do not create a Home dir, disable shell access for this user. 
+## This use can now login to the shared drive.
+sudo useradd -M -d /opt/FitnessCenterSrv/MembersData -s /usr/sbin/nologin -G sambashare fitnessUser
+pass=fitnessUser2020
+(echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
+sudo smbpasswd -e fitnessUser
+sudo gpasswd -a fitnessUser APIService
+#   
+# Ownership and permissions 
+sudo chown -R root:APIService /opt/FitnessCenterSrv
+## Change group membership of all files in MembersData to APIService  
+sudo chgrp -hR APIService /opt/FitnessCenterSrv/MembersData
+## Change group membership of all files in Uploads to sambashare  
+sudo chgrp -hR sambashare /opt/FitnessCenterSrv/Uploads
+## Change permissions to read and write in the /Uploads folder for sambashare users
+sudo setfacl -m group:sambashare:rwx /opt/FitnessCenterSrv/Uploads/
+## Change permissions to read only in the /MembersData folder for sambashare users
+##sudo setfacl -m group:sambashare:r-x /opt/FitnessCenterSrv/MembersData/
 find /opt/FitnessCenterSrv -type f -exec chmod 0660 {} \;
 sudo find /opt/FitnessCenterSrv -type d -exec chmod 2770 {} \;
-#
-#
+# Make all files in MembersData read-only but preserve the executable permission on the Directory only.
+sudo chmod -R a+rX /opt/FitnessCenterSrv/MembersData/
+sudo chmod -R a+wX /opt/FitnessCenterSrv/Uploads/
+
 # START the SAMBA server
-sudo service smbd restart
-sudo systemctl restart nmbd
+sudo systemctl restart smbd nmbd
+#
 #
 ## Connect an existing network drive folder to the ~/mnt/share/FitnessCenter
 ## This will be used to pass membership data and check-in data from/to the clie$

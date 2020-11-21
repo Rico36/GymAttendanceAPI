@@ -1,0 +1,78 @@
+[global]
+workgroup = WORKGROUP
+server string = Samba Server %v
+invalid users = root bin daemon adm sync shutdown halt mail news uucp operator
+[global]
+workgroup = WORKGROUP
+server string = Samba Server %v
+invalid users = root bin daemon adm sync shutdown halt mail news uucp operator
+#security = user
+map to guest = bad user
+#wins support = no
+name resolve order = lmhosts host wins bcast
+dns proxy = no
+interfaces = 127.0.0.0/8 172.16.5.170 ens160
+bind interfaces only = yes
+disable netbios = yes
+smb ports = 445
+log file = /var/log/samba/log.%m
+max log size = 10000
+obey pam restrictions = yes
+unix password sync = yes
+passdb backend = tdbsam
+passwd program = /usr/bin/passwd %u
+passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdate$
+pam password change = yes
+local master = yes
+preferred master = yes
+#usershare allow guests = yes
+
+# ------------------------------------------------------------------------
+# Private share - Only the group APIService can browse, delete and read. 
+#                 The user freyrri user can do anything. (Change to admin person later)
+# NOTE:  ensure correct ACL permissions to the www-data and sambashare groups:  
+#    $> sudo chown -R root:APIService /opt/FitnessCenterSrv/MembersData/
+#    $> sudo setfacl -m group:sambashare:r-- /opt/FitnessCenterSrv/MembersData
+#
+# -----------------------------------------
+   [MembersData]
+   admin users = @APIService
+   comment = OSSAM's Wellness Centers - memberships
+   path = /opt/FitnessCenterSrv/MembersData
+   browsable = yes
+   guest ok = no
+   read only = yes
+   writeable = no
+   create mask = 0470
+   directory mask = 0775
+   valid users = @APIService @sambashare
+   read list = @sambashare
+   write list = @APIService
+
+
+# ----------------------------------------------------------------------------
+# Public share (UpdateData) - The group sambashare can browse, download, delete  and create.
+#                             Only accessible from certain network subnets.
+#  This folder meant for Fitness staff to upload the membership data (DATA.JSON) file.
+#  The content will be processed async by a CRON job at a later time. 
+#
+#    $> sudo chown -R root:sambashare /opt/FitnessCenterSrv/Uploads/
+#    $> sudo chmod -R a+rX /opt/FitnessCenterSrv/MembersData/
+#    $> sudo chmod 0670 /opt/FitnessCenterSrv/Uploads/
+#  
+   [Uploads]
+   comment = Uploads, Documentation, etc
+   admin users = @APIService
+   path = /opt/FitnessCenterSrv/Uploads
+   browsable = yes
+   read only =no
+   writable = yes
+   guest ok = no
+   valid users = @sambashare
+   create mask = 0670
+   directory mask = 0771
+   hosts allow 127.0.0.1 172.16.0.0/24 192.169.0.0/24
+   #hosts deny = lvnbadhost
+   write list = @sambashare
+
+
