@@ -1,5 +1,5 @@
 {
-    "membersData" : "/opt/FitnessCenterSrv/MembersData/data.json",
-    "checkinData" : "/opt/FitnessCenterSrv/MembersData/checkins.json",
-    "devices":  "/opt/FitnessCenterSrv/MembersData/devices.json"
+    "membersData" : "/samba/share/MembersData/data.json",
+    "checkinData" : "/samba/share/MembersData/checkins.json",
+    "devices":  "/samba/share/MembersData/devices.json"
 }
