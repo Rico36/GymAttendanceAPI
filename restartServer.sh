@@ -1,4 +1,4 @@
-
+#!/bin/bash
 # STOP the web server 
 cd /opt/FitnessCenterSrv
 sudo systemctl quit nginx
@@ -17,4 +17,4 @@ sudo pm2 startup systemd
 sudo systemctl status nginx
 sudo pm2 status
 #
-sudo service smbd restart
+sudo systemctl restart smbd nmbd

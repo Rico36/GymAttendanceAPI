@@ -18,12 +18,15 @@ sudo apt-get install git
 ## The folder /Opt is reserved by Linux for additional software we little humans may install. 
 ## This is kind of like ‘Program Files’ for linux.
 sudo mkdir /opt/FitnessCenterSrv
-## Create a group to hold the list of accounts that can access the shared drives in SAMBA
+## Create a group to hold the list of accounts that R/W to the shared drive: Uploads
 sudo groupadd sambashare
-# Create group for admin accounts who need full access to all data and system files
+## Create a group to hold the list of accounts that can Read the shared drive: MembersData
+sudo groupadd sambashare2
+# Create group for admin accounts who need full access to execute programs, all data and system files
 sudo groupadd APIService
 ## add me to these groups :-)
 sudo gpasswd -a "$USER" sambashare
+sudo gpasswd -a "$USER" sambashare2
 sudo gpasswd -a "$USER" APIService
 sudo gpasswd -a labadmin APIService
 
@@ -93,19 +96,27 @@ sudo ufw status verbose
 #
 #
 ## Create the sub-folders 
-sudo mkdir MembersData
-sudo mkdir Uploads
+sudo mkdir -p /samba/share/MembersData
+sudo mkdir -p /samba/share/Uploads
 sudo mkdir logs
-sudo chmod 2777 /opt/FitnesssCenterSrv/MembersData
+sudo chmod 2777 /samba/share/MembersData
+sudo chmod 2777 /samba/share/Uploads
+sudo chgrp -hR sambashare /samba/share/MembersData
+sudo chgrp -hR sambashare2 /samba/share/Uploads
+# Make all files in MembersData read-only but preserve the executable permission on the Directory only.
+sudo chmod -R a+rX /samba/share/MembersData/
+sudo chmod -R a+wX /samba/share/Uploads/
+sudo setfacl -m default:group:sambashare:r-x /samba/share/MembersData/
+sudo setfacl -m default:group:sambashare2:rwx /samba/share/Uploads/
+
+
 ## load the default JSON files into the /MembersData
-eval $"sudo cp $base_dir/data.json /opt/FitnessCenterSrv/MembersData/" 
-eval $"sudo cp $base_dir/locations.json /opt/FitnessCenterSrv/MembersData/" 
-eval $"sudo cp $base_dir/checkins.json /opt/FitnessCenterSrv/MembersData/" 
-eval $"sudo cp $base_dir/devices.json /opt/FitnessCenterSrv/MembersData/" 
+eval $"sudo cp $base_dir/data.json /samba/share/MembersData/" 
+eval $"sudo cp $base_dir/locations.json /samba/share/MembersData/" 
+eval $"sudo cp $base_dir/checkins.json /samba/share/MembersData/" 
+eval $"sudo cp $base_dir/devices.json /samba/share/MembersData/" 
 ## change ownership of these sub-folders accordinly
-sudo chown -R root:APIService /opt/FitnessCenterSrv/Uploads
 sudo chown -R root:APIService /opt/FitnessCenterSrv/logs
-sudo chown -R root:APIService /opt/FitnessCenterSrv/MembersData
 
 ## ########################
 ## SAMBA
@@ -114,29 +125,28 @@ sudo chown -R root:APIService /opt/FitnessCenterSrv/MembersData
 ##  https://devanswers.co/discover-ubuntu-machines-samba-shares-windows-10-network/
 ## https://www.digitalocean.com/community/tutorials/how-to-set-up-a-samba-share-for-a-small-organization-on-ubuntu-16-04
 ##
+## net use * /delete.
+##
 ## Add "fitnessUser" as a new user in sambashare group  / do not create a Home dir, disable shell access for this user. 
 ## This use can now login to the shared drive.
-sudo useradd -M -d /opt/FitnessCenterSrv/MembersData -s /usr/sbin/nologin -G sambashare fitnessUser
+eval $"sudo cp $base_dir/smb.conf /etc/samba/" 
+
+sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare fitnessUser
 pass=fitnessUser2020
 (echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
 sudo smbpasswd -e fitnessUser
 sudo gpasswd -a fitnessUser APIService
-#   
+## Add "fitnessUser2" as a new user in sambashare2 group  / do not create a Home dir, disable shell access for this user. 
+sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare2 fitnessUser2
+(echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
+sudo smbpasswd -e fitnessUser2
+sudo gpasswd -a fitnessUser2 sambashare2
+
+
 # Ownership and permissions 
 sudo chown -R root:APIService /opt/FitnessCenterSrv
-## Change group membership of all files in MembersData to APIService  
-sudo chgrp -hR APIService /opt/FitnessCenterSrv/MembersData
-## Change group membership of all files in Uploads to sambashare  
-sudo chgrp -hR sambashare /opt/FitnessCenterSrv/Uploads
-## Change permissions to read and write in the /Uploads folder for sambashare users
-sudo setfacl -m group:sambashare:rwx /opt/FitnessCenterSrv/Uploads/
-## Change permissions to read only in the /MembersData folder for sambashare users
-##sudo setfacl -m group:sambashare:r-x /opt/FitnessCenterSrv/MembersData/
 find /opt/FitnessCenterSrv -type f -exec chmod 0660 {} \;
 sudo find /opt/FitnessCenterSrv -type d -exec chmod 2770 {} \;
-# Make all files in MembersData read-only but preserve the executable permission on the Directory only.
-sudo chmod -R a+rX /opt/FitnessCenterSrv/MembersData/
-sudo chmod -R a+wX /opt/FitnessCenterSrv/Uploads/
 
 # START the SAMBA server
 sudo systemctl restart smbd nmbd
