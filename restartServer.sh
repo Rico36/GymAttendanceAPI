@@ -8,7 +8,7 @@ sudo pm2 stop app.js
 ## Download all code changes from GIT and ignore/discard any local changes (if any)
 # sudo git fetch --all
 # sudo git reset --hard origin/master
-
+sudo chmod +x upload.php
 #run the web server app as a background process
 sudo nginx -t
 sudo systemctl start nginx
