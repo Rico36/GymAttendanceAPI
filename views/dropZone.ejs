@@ -1,0 +1,49 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <!-- Google web fonts -->
+      <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel='stylesheet' />
+
+      <!-- The main CSS file -->
+      <link href="css/style.css" rel="stylesheet" />
+      <%- include('./partials/head'); %>
+  </head>
+  <body class="container">
+
+    <header>
+        <%- include('./partials/header'); %>
+    </header>
+
+		<form id="upload" method="post" action="../upload.php" enctype="multipart/form-data">
+			<div id="drop">
+				Drop Here
+
+				<a>Browse</a>
+				<input type="file" name="upl" multiple />
+			</div>
+
+			<ul>
+				<!-- The file uploads will be shown here -->
+			</ul>
+
+		</form>
+
+		<footer>
+            <h2><a href="https://www.philab.cdc.gov/index.php/services/"><i>OCIO/CEO/ET-DAB:</i> Upload Membership Data</a></h2>
+            <div id="tzine-actions">
+              </div>
+        </footer>
+        
+		<!-- JavaScript Includes -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="javascripts/jquery.knob.js"></script>
+
+		<!-- jQuery File Upload Dependencies -->
+		<script src="javascripts/jquery.ui.widget.js"></script>
+		<script src="javascripts/jquery.iframe-transport.js"></script>
+		<script src="javascripts/jquery.fileupload.js"></script>
+		
+		<!-- Our main JS file -->
+		<script src="javascripts/script.js"></script>
+
+</html>

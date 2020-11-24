@@ -11,4 +11,9 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'CDC GymAttendance API' });
 });
 
+router.get("/dropZone", function (req, res) {
+  console.log("dropZone!!!");
+  res.render("dropZone");
+})
+
 module.exports = router;

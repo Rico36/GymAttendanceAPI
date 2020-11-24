@@ -126,6 +126,8 @@ sudo chown -R root:APIService /opt/FitnessCenterSrv/logs
 ## https://www.digitalocean.com/community/tutorials/how-to-set-up-a-samba-share-for-a-small-organization-on-ubuntu-16-04
 ##
 ## net use * /delete.
+## smbclient //localhost/MembersData -U fitnessUser
+
 ##
 ## Add "fitnessUser" as a new user in sambashare group  / do not create a Home dir, disable shell access for this user. 
 ## This use can now login to the shared drive.
@@ -135,12 +137,13 @@ sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare f
 pass=fitnessUser2020
 (echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
 sudo smbpasswd -e fitnessUser
-sudo gpasswd -a fitnessUser APIService
+sudo gpasswd -a fitnessUser sambashare
 ## Add "fitnessUser2" as a new user in sambashare2 group  / do not create a Home dir, disable shell access for this user. 
 sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare2 fitnessUser2
 (echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
 sudo smbpasswd -e fitnessUser2
 sudo gpasswd -a fitnessUser2 sambashare2
+sudo gpasswd -a fitnessUser sambashare2
 
 
 # Ownership and permissions 

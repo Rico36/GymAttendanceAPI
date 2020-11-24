@@ -28,15 +28,30 @@ var logger = require('morgan');
 var cors = require('cors');
 var fs = require('fs');
 var http = require('http');
+var multer = require('multer');
+
+// SET STORAGE
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now())
+  }
+})
+ 
+var upload = multer({ storage: storage })
+//var upload = multer({dest: 'uploads/', keepExtensions: true});
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+//var dropRouter = require('./routes/dropZone');
 var debug = require('debug')('users');
 
 app.enable('trust proxy');
 // view engine setup
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -44,6 +59,8 @@ app.use(express.static(path.join(__dirname, 'public')));  // to serve static fil
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+//app.use('dropZone', dropRouter);
+
 //app.use(helmet());
 app.use(logger('dev'));
 // catch 404 and forward to error handler
@@ -61,6 +78,17 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+app.post('/upload/dropzone', upload.single("membership"), function (req, res) {
+  console.log("inside app.post(/upload/dropzone)")
+  var file = req.file;
+  var tail = "." + file.mimetype.split("/")[1];
+  fs.rename(file.path, file.path + tail, function (err) {
+      if (err) res.send({status: false});
+      else res.send({status: true, files: req.files});
+  });
+});
+
+
 // Instantiate the HTTP server
 var httpServer = http.createServer(app);
 //httpServer.listen(httpPort, () => {     // <== for debug purpose
@@ -68,12 +96,5 @@ httpServer.listen(httpPort, "127.0.0.1", () => {
   console.log("Http server at http://127.0.0.1:" + httpPort)
 });
 
-// app.get('/', function(req, res) {
-//   res.redirect('/index.html');
-// });
-
-app.get('/', function (req, res) {
-  res.render('index', { title: 'Hey', message: 'Hello there!' })
-})
 
 module.exports = app;

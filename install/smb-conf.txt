@@ -4,7 +4,6 @@ server string = Samba Server %v
 invalid users = root bin daemon adm sync shutdown halt mail news uucp operator
 security = user
 map to guest = bad user
-#wins support = no
 name resolve order = lmhosts host wins bcast
 dns proxy = no
 interfaces = ens160 lo
@@ -21,6 +20,9 @@ passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *
 pam password change = yes
 local master = yes
 preferred master = yes
+server min protocol = SMB2_10
+​client max protocol = SMB3
+​client min protocol = SMB2_10
 #usershare allow guests = yes
 
 # ------------------------------------------------------------------------
