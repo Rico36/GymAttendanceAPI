@@ -69,9 +69,7 @@ app.enable('trust proxy');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('css', path.join(__dirname+"/public", 'css'));
-app.use(express.static('public'));
-app.use(express.static('css'));
-app.use(express.static('images'));
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
