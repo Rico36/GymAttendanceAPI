@@ -68,7 +68,10 @@ app.enable('trust proxy');
 // view engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(__dirname + '/public'));
+app.set('css', path.join(__dirname+"/public", 'css'));
+app.use(express.static('public'));
+app.use(express.static('css'));
+app.use(express.static('images'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
