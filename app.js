@@ -30,6 +30,24 @@ var fs = require('fs');
 var http = require('http');
 var multer = require('multer');
 
+
+/*  MONGO DB - future version dev
+const db = require("./db/models");
+db.mongoose
+  .connect(db.url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+  });
+
+*/
+
 // SET UPLOAD STORAGE
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -50,11 +68,11 @@ app.enable('trust proxy');
 // view engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static("bower_components"));
+app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/dist'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));  // to serve static files (i.e., images, CSS files, etc) in a directory named "public"
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

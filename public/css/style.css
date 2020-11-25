@@ -15,8 +15,7 @@
 
 
 html{
-    background-color: rgb(199, 194, 194)         /* #ebebec; */
-
+    background-color: #4f4f4f; /* rgb(199, 194, 194); */        /* #ebebec; */
     background-image:-webkit-radial-gradient(center, #ebebec, #b4b4b4);
     background-image:-moz-radial-gradient(center, #ebebec, #b4b4b4);
     background-image:radial-gradient(center, #ebebec, #b4b4b4);

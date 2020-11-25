@@ -5,7 +5,7 @@ $(function(){
     $('#drop a').click(function(){
         // Simulate a click on the file input button
         // to show the file browser dialog
-        $(this).parent().find('input').click();
+         $(this).parent().find('input').click()
     });
 
     // Initialize the jQuery File Upload plugin
@@ -27,7 +27,7 @@ $(function(){
 
             // Add the HTML to the UL element
      // ------
-     // ===>>      data.context = tpl.appendTo(ul);
+      // ===>>        data.context = tpl.appendTo(ul);
     // -------
             // Initialize the knob plugin
             tpl.find('input').knob();
