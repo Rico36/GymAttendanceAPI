@@ -56,11 +56,11 @@ section, footer, header, aside{
     background-image:-moz-linear-gradient(top, #373a3d, #313437);
     background-image:linear-gradient(top, #373a3d, #313437);
 
-    width:350px;
+    width:280px;
     padding:30px;
     border-radius:3px;
 
-    margin:200px auto 100px;   /* 200 px */
+    margin:100px auto 100px;   /* 200 px */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 

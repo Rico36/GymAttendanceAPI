@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+var upload = multer({dest: 'uploads/', keepExtensions: true});
+
 
 // .......................
 // @TODO add authentication 
@@ -12,7 +15,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get("/dropZone", function (req, res) {
-  console.log("dropZone!!!");
+  console.log("GET dropZone!!!");
   res.render("dropZone");
 })
 

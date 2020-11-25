@@ -9,6 +9,9 @@ sudo pm2 stop app.js
 # sudo git fetch --all
 # sudo git reset --hard origin/master
 sudo chmod +x upload.php
+sudo chmod +x restartServer.sh
+sudo chmod +x stopServer.sh
+sudo chmod +x serverStatus.sh
 #run the web server app as a background process
 sudo nginx -t
 sudo systemctl start nginx

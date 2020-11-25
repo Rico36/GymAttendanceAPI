@@ -3,47 +3,67 @@
   <head>
       <!-- Google web fonts -->
       <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel='stylesheet' />
-
+ 	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css">  
+	  <link rel="icon" type="image/ico" href="favicon.ico"/>
       <!-- The main CSS file -->
-      <link href="css/style.css" rel="stylesheet" />
+	  <link href="/css/awesome.css" rel='stylesheet' />
+	  <link href="css/style.css" rel="stylesheet" />
       <%- include('./partials/head'); %>
   </head>
   <body class="container">
 
     <header>
         <%- include('./partials/header'); %>
-    </header>
+	</header>
+	<form action="/uploads" method="post" class="dropzone"  id="upload" enctype="multipart/form-data">
+		<div id="drop">
+			Drop Here
 
-		<form id="upload" method="post" action="../upload.php" enctype="multipart/form-data">
-			<div id="drop">
-				Drop Here
+			<br /><a>Browse</a>
+			<input type="file" name="upl" multiple  class="dz-message"/>
+		</div>
 
-				<br /><a>Browse</a>
-				<input type="file" name="upl" multiple />
-			</div>
-
-			<ul>
-				<!-- The file uploads will be shown here -->
-			</ul>
-
-		</form>
+		<ul>
+			
+		</ul>
+     </form>
 
 		<footer>
             <h2><a href="https://www.philab.cdc.gov/index.php/services/"><i>OCIO/CEO/ET-DAB:</i> Upload Membership Data</a></h2>
             <div id="tzine-actions">
               </div>
         </footer>
-        
+
 		<!-- JavaScript Includes -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+ 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="javascripts/jquery.knob.js"></script>
-
-		<!-- jQuery File Upload Dependencies -->
-		<script src="javascripts/jquery.ui.widget.js"></script>
+ 		<script src="javascripts/jquery.ui.widget.js"></script>
 		<script src="javascripts/jquery.iframe-transport.js"></script>
-		<script src="javascripts/jquery.fileupload.js"></script>
-		
-		<!-- Our main JS file -->
+		<script src="javascripts/jquery.fileupload.js"></script> 
 		<script src="javascripts/script.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>	
+		<script>
+			Dropzone.options.upload = {
+				  url:"/uploads",
+				  maxFiles: 1,
+				  clickable: true,
+				  maxFilesize: 8, //mb
+				  acceptedFiles: 'application/json,',
+				  dictDefaultMessage: ' ',
+				  method: 'post',
+				  createImageThumbnails: false,
 
+				  accept: function(file, done) {
+					console.log("uploaded");
+					done();
+				  },
+				  init: function() {
+					this.on("addedfile", function(event) {
+						while (this.files.length > this.options.maxFiles) {
+							this.removeFile(this.files[0]);
+						}
+					});
+				  }
+			};
+		</script>
 </html>

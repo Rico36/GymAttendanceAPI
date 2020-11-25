@@ -26,14 +26,15 @@ $(function(){
                          .append('<i>' + formatFileSize(data.files[0].size) + '</i>');
 
             // Add the HTML to the UL element
-            data.context = tpl.appendTo(ul);
-
+     // ------
+     // ===>>      data.context = tpl.appendTo(ul);
+    // -------
             // Initialize the knob plugin
             tpl.find('input').knob();
 
             // Listen for clicks on the cancel icon
             tpl.find('span').click(function(){
-
+             
                 if(tpl.hasClass('working')){
                     jqXHR.abort();
                 }

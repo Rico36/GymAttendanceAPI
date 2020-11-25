@@ -41,7 +41,6 @@ log4js.configure({
    }
  });
 
-
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the entire list of users @ http://..../users
 // Allows working offline!!

@@ -30,28 +30,27 @@ var fs = require('fs');
 var http = require('http');
 var multer = require('multer');
 
-// SET STORAGE
+// SET UPLOAD STORAGE
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads')
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now())
+  //  cb(null, file.fieldname + '-' + Date.now())
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
   }
 })
- 
 var upload = multer({ storage: storage })
-//var upload = multer({dest: 'uploads/', keepExtensions: true});
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-//var dropRouter = require('./routes/dropZone');
 var debug = require('debug')('users');
 
 app.enable('trust proxy');
 // view engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static("bower_components"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -59,7 +58,31 @@ app.use(express.static(path.join(__dirname, 'public')));  // to serve static fil
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-//app.use('dropZone', dropRouter);
+
+
+app.post('/uploads', upload.single("file"), function (req, res) {
+  console.log("inside app.post(/upload/dropzone)")
+  var file = req.file;
+  var filename = file.path; 
+  console.log("filename: " + filename);
+  if (!file) {
+    const error = new Error('Please upload a file')
+    error.httpStatusCode = 400
+    return next(error)
+  }
+  fs.rename(file.path, file.path, function (err) {
+      if (err) { 
+          console.log(err); 
+          res.send({status: false})
+      }
+      else res.send({status: true, files: req.files});
+  });
+});
+
+app.all('/upload', function (req, res, next) {
+  console.log('Accessing the secret section ...')
+  next() // pass control to the next handler
+})
 
 //app.use(helmet());
 app.use(logger('dev'));
@@ -72,20 +95,9 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});
-
-app.post('/upload/dropzone', upload.single("membership"), function (req, res) {
-  console.log("inside app.post(/upload/dropzone)")
-  var file = req.file;
-  var tail = "." + file.mimetype.split("/")[1];
-  fs.rename(file.path, file.path + tail, function (err) {
-      if (err) res.send({status: false});
-      else res.send({status: true, files: req.files});
-  });
 });
 
 
