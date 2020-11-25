@@ -8,7 +8,6 @@ sudo pm2 stop app.js
 ## Download all code changes from GIT and ignore/discard any local changes (if any)
 # sudo git fetch --all
 # sudo git reset --hard origin/master
-sudo chmod +x upload.php
 sudo chmod +x restartServer.sh
 sudo chmod +x stopServer.sh
 sudo chmod +x serverStatus.sh
