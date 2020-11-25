@@ -19,4 +19,8 @@ router.get("/dropZone", function (req, res) {
   res.render("dropZone");
 })
 
+router.get("/reports", function (req, res) {
+  res.render("reports");
+})
+
 module.exports = router;
