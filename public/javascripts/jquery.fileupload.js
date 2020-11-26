@@ -44,7 +44,17 @@
     $.widget('blueimp.fileupload', {
 
         options: {
- 
+            url:"/uploads",
+            maxFiles: 1,
+            clickable: true,
+            maxFilesize: 8, //mb
+            acceptedFiles: 'application/json',
+            dictDefaultMessage: ' ',
+            method: 'post',
+            createImageThumbnails: false,
+            autoDiscover: false,
+            disableClick: true,
+
 			createImageThumbnails: false,
             // The drop target element(s), by the default the complete document.
             // Set to null to disable drag & drop support:
@@ -148,7 +158,13 @@
             },
 
             // Other callbacks:
-
+            init: function() {
+                this.on("addedfile", function(event) {
+                    while (this.files.length > this.options.maxFiles) {
+                        this.removeFile(this.files[0]);
+                    }
+                })
+            },
             // Callback for the submit event of each file upload:
             // submit: function (e, data) {}, // .bind('fileuploadsubmit', func);
 

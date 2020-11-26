@@ -148,8 +148,8 @@ sudo gpasswd -a fitnessUser sambashare2
 
 # Ownership and permissions 
 sudo chown -R root:APIService /opt/FitnessCenterSrv
-find /opt/FitnessCenterSrv -type f -exec chmod 0660 {} \;
-sudo find /opt/FitnessCenterSrv -type d -exec chmod 2770 {} \;
+find /opt/FitnessCenterSrv -type f -exec sudo chmod 0660 {} \;
+sudo find /opt/FitnessCenterSrv -type d -exec sudo chmod 2770 {} \;
 
 # START the SAMBA server
 sudo systemctl restart smbd nmbd
