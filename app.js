@@ -14,6 +14,7 @@
 //
 //
 //
+require("dotenv").config();
 const express = require('express');
 var app = express();
 env = process.env.NODE_ENV || 'development';
@@ -30,25 +31,33 @@ var fs = require('fs');
 var http = require('http');
 var multer = require('multer');
 
-
-/*  MONGO DB - future version dev
-const db = require("./db/models");
-db.mongoose
-  .connect(db.url, {
+// ................................
+// MONGO DB - Connect
+// ..................................
+const mongoose  = require("mongoose");
+mongoose
+  .connect(process.env.DATABASE_URL, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Connected to the database!");
+    ;
   })
   .catch(err => {
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
 
-*/
+  // Nexrt line is a built-in middleware function in Express. It parses incoming requests 
+  // with JSON payloads and is based on body-parser. This will allow our servers to allow incoming .json file format.
+  app.use(express.json());
 
-// SET UPLOAD STORAGE
+// ----------------------------------- 
+// SET FILE UPLOADS naming convention 
+// and location of storage.
+// --------------------------- 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads')
@@ -59,6 +68,7 @@ var storage = multer.diskStorage({
   }
 })
 var upload = multer({ storage: storage })
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -77,7 +87,28 @@ app.use(cookieParser());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+//app.use(helmet());
+app.use(logger('dev'));
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
 
+
+
+// ------------------------------------------------
+// Here we handle receiving uploaded files (.json)
+// to save them in the /uploads folder.
+// ------------------------------------------------
 app.post('/uploads', upload.single("file"), function (req, res) {
   console.log("inside app.post(/upload/dropzone)")
   var file = req.file;
@@ -97,32 +128,11 @@ app.post('/uploads', upload.single("file"), function (req, res) {
   });
 });
 
-app.all('/upload', function (req, res, next) {
-  console.log('Accessing the secret section ...')
-  next() // pass control to the next handler
-})
 
-//app.use(helmet());
-app.use(logger('dev'));
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-
-// Instantiate the HTTP server
+// Instantiate the HTTP server now
 var httpServer = http.createServer(app);
-//httpServer.listen(httpPort, () => {     // <== for debug purpose
-httpServer.listen(httpPort, "127.0.0.1", () => {
+httpServer.listen(httpPort, () => {     // <== for debug purpose
+//httpServer.listen(httpPort, "127.0.0.1", () => {
   console.log("Http server at http://127.0.0.1:" + httpPort)
 });
 

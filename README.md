@@ -26,4 +26,8 @@ CDC fitness center attendance/checkin API - server
  git + deployment instructions: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/deployment
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-
+// install MongoDB in Ubuntu
+// https://tecadmin.net/install-mongodb-on-ubuntu/
+//
+// How to Setup Node.js with MongoDB on Ubuntu
+//  https://tecadmin.net/setup-nodejs-with-mongodb-on-ubuntu/
