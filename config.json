@@ -1,5 +1,5 @@
 {
-    "membersData" : "/samba/share/MembersData/data.json",
-    "checkinData" : "/samba/share/MembersData/checkins.json",
-    "devices":  "/samba/share/MembersData/devices.json"
+    "membersData" : "//RICKYPC/data/data.json",
+    "checkinData" : "//RICKYPC/data/checkins.json",
+    "devices":  "//RICKYPC/data/devices.json"
 }
