@@ -55,22 +55,40 @@ sudo git reset --hard origin/master
 #git pull
 #install dependencies
 npm install
+# ----------------------------------------------------
+## Install MongoDB Service
 #
+#  Use the following commands to stop and restart the service
+#      sudo systemctl stop mongod.service
+#      sudo systemctl restart mongod.service
+#      mongod --version
+# --------------------
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 656408E390CFB1F5
+echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb.list
+sudo apt update
+sudo apt install -y mongodb-org=4.4.1 mongodb-org-server=4.4.1 mongodb-org-shell=4.4.1 mongodb-org-mongos=4.4.1 mongodb-org-tools=4.4.1
+#
+sudo systemctl enable mongod.service
+sudo systemctl start mongod.service
+
+
+
+#nano installMongoDB.
 ## Use SAMBA to share the MembrsData folder with the Fitness Center staff
 # INSTALL SAMBA -
-sudo cd /opt/FitnesssCenterSrv
-sudo apt-get install samba -y
-sudo mkdir BAK
-sudo cp /etc/samba/smb.conf ./BAK
-sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "writable = yes" >> /etc/samba/smb.conf'
+#sudo cd /opt/FitnesssCenterSrv
+#sudo apt-get install samba -y
+#sudo mkdir BAK
+#sudo cp /etc/samba/smb.conf ./BAK
+#sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "writable = yes" >> /etc/samba/smb.conf'
 ##
 ## setup firewall
 sudo apt install ufw -y
@@ -89,7 +107,7 @@ sudo ufw allow 139/tcp
 sudo ufw allow 445/tcp
 sudo ufw allow 5357/tcp
 sudo ufw allow 3702/udp
-sudo ufw allow 'Samba'
+#sudo ufw allow 'Samba'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw status verbose

@@ -12,7 +12,7 @@ const path = require('path')
 // Request File System Module
 var fs = require('fs');
 var os = require("os");
-const LocationCacheFile = './uploads/data.json';
+const LocationCacheFile = './install/data.json'; //  process.env.MEMBERS_DATA_FILE;
 
 require("dotenv").config();
 // ................................

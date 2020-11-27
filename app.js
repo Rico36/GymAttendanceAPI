@@ -89,21 +89,6 @@ app.use('/users', usersRouter);
 
 //app.use(helmet());
 app.use(logger('dev'));
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-
 
 // ------------------------------------------------
 // Here we handle receiving uploaded files (.json)
@@ -127,12 +112,26 @@ app.post('/uploads', upload.single("file"), function (req, res) {
       else res.send({status: true, files: req.files});
   });
 });
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
 
 
 // Instantiate the HTTP server now
 var httpServer = http.createServer(app);
-httpServer.listen(httpPort, () => {     // <== for debug purpose
-//httpServer.listen(httpPort, "127.0.0.1", () => {
+//httpServer.listen(httpPort, () => {     // <== for debug purpose
+httpServer.listen(httpPort, "127.0.0.1", () => {
   console.log("Http server at http://127.0.0.1:" + httpPort)
 });
 

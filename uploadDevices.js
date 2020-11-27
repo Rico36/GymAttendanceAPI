@@ -13,7 +13,9 @@ const path = require('path')
 // Request File System Module
 var fs = require('fs');
 var os = require("os");
-const LocationCacheFile = '//RICKYPC/data/devices.json';
+const LocationCacheFile = './install/devices.json'; //  process.env.DEVICES_DATA_FILE;
+
+
 
 require("dotenv").config();
 // ................................
