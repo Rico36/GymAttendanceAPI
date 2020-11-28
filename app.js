@@ -15,6 +15,7 @@
 //
 //
 require("dotenv").config();
+var os = require("os");
 const express = require('express');
 var app = express();
 env = process.env.NODE_ENV || 'development';
@@ -64,7 +65,7 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
   //  cb(null, file.fieldname + '-' + Date.now())
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    cb(null, Date.now()+ '-' +file.originalname);
   }
 })
 var upload = multer({ storage: storage })
@@ -87,7 +88,7 @@ app.use(cookieParser());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-//app.use(helmet());
+app.use(helmet());
 app.use(logger('dev'));
 
 // ------------------------------------------------
@@ -127,13 +128,12 @@ app.use(function(err, req, res, next) {
 });
 
 
-
+// **********************************
 // Instantiate the HTTP server now
+// **********************************
 var httpServer = http.createServer(app);
-//httpServer.listen(httpPort, () => {     // <== for debug purpose
-httpServer.listen(httpPort, "127.0.0.1", () => {
-  console.log("Http server at http://127.0.0.1:" + httpPort)
+const server = httpServer.listen(httpPort, () => {
+  console.log(`Server is running on host ${os.hostname()} @ http://127.0.0.1:${httpPort}`);
 });
-
 
 module.exports = app;

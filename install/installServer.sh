@@ -1,7 +1,12 @@
 #!/bin/bash
-# INSTALL ##
+# PLEASE EXECUTE THIS SCRIPT FROM WITHIN THE ./INSTALL subfolder ##
 base_dir=$PWD
 USER = "freyrri"
+if ! [[ "$PWD" =~ install ]]; then
+    echo "Please execute this script only in the ./INSTALL sub-directory";
+   exit 1; 
+fi
+
 ##
 #install oracle java
 #sudo add-apt-repository ppa:webupd8team/java
@@ -20,18 +25,15 @@ sudo apt-get install git
 sudo mkdir /opt/FitnessCenterSrv
 ## Create a group to hold the list of accounts that R/W to the shared drive: Uploads
 sudo groupadd sambashare
-## Create a group to hold the list of accounts that can Read the shared drive: MembersData
-sudo groupadd sambashare2
 # Create group for admin accounts who need full access to execute programs, all data and system files
 sudo groupadd APIService
 ## add me to these groups :-)
 sudo gpasswd -a "$USER" sambashare
-sudo gpasswd -a "$USER" sambashare2
 sudo gpasswd -a "$USER" APIService
 sudo gpasswd -a labadmin APIService
 
 
-## Install node-js, npm 
+## Install Express/node-js, npm 
 sudo apt-get update && apt-get -y upgrade
 cd /opt/FitnesssCenterSrv
 sudo apt install nodejs  -y
@@ -52,7 +54,7 @@ sudo git config --global color.status auto
 sudo git config --global color.branch auto
 sudo git fetch --all
 sudo git reset --hard origin/master
-#git pull
+#
 #install dependencies
 npm install
 # ----------------------------------------------------
@@ -70,25 +72,33 @@ sudo apt install -y mongodb-org=4.4.1 mongodb-org-server=4.4.1 mongodb-org-shell
 #
 sudo systemctl enable mongod.service
 sudo systemctl start mongod.service
-
-
-
-#nano installMongoDB.
+#
+#
+## ########################
+## SAMBA
+##  https://linuxconfig.org/how-to-configure-samba-server-share-on-ubuntu-18-04-bionic-beaver-linux
+##  https://stackoverflow.com/questions/24933661/multiple-connections-to-a-server-or-shared-resource-by-the-same-user-using-more
+##  https://devanswers.co/discover-ubuntu-machines-samba-shares-windows-10-network/
+## https://www.digitalocean.com/community/tutorials/how-to-set-up-a-samba-share-for-a-small-organization-on-ubuntu-16-04
+##
+## net use * /delete.
+## smbclient //localhost/MembersData -U fitnessUser
+#
 ## Use SAMBA to share the MembrsData folder with the Fitness Center staff
 # INSTALL SAMBA -
-#sudo cd /opt/FitnesssCenterSrv
-#sudo apt-get install samba -y
-#sudo mkdir BAK
-#sudo cp /etc/samba/smb.conf ./BAK
-#sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
-#sudo -- bash -c 'echo "writable = yes" >> /etc/samba/smb.conf'
+cd /opt/FitnesssCenterSrv
+sudo apt-get install samba -y
+sudo mkdir BAK
+sudo cp /etc/samba/smb.conf ./BAK
+sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
+sudo -- bash -c 'echo "writable = yes" >> /etc/samba/smb.conf'
 ##
 ## setup firewall
 sudo apt install ufw -y
@@ -107,26 +117,20 @@ sudo ufw allow 139/tcp
 sudo ufw allow 445/tcp
 sudo ufw allow 5357/tcp
 sudo ufw allow 3702/udp
-#sudo ufw allow 'Samba'
+sudo ufw allow 'Samba'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw status verbose
 #
-#
 ## Create the sub-folders 
 sudo mkdir -p /samba/share/MembersData
-sudo mkdir -p /samba/share/Uploads
 sudo mkdir logs
 sudo chmod 2777 /samba/share/MembersData
-sudo chmod 2777 /samba/share/Uploads
 sudo chgrp -hR sambashare /samba/share/MembersData
-sudo chgrp -hR sambashare2 /samba/share/Uploads
 # Make all files in MembersData read-only but preserve the executable permission on the Directory only.
 sudo chmod -R a+rX /samba/share/MembersData/
-sudo chmod -R a+wX /samba/share/Uploads/
 sudo setfacl -m default:group:sambashare:r-x /samba/share/MembersData/
-sudo setfacl -m default:group:sambashare2:rwx /samba/share/Uploads/
-
+eval $"sudo cp $base_dir/smb.conf /etc/samba/" 
 
 ## load the default JSON files into the /MembersData
 eval $"sudo cp $base_dir/data.json /samba/share/MembersData/" 
@@ -135,43 +139,22 @@ eval $"sudo cp $base_dir/checkins.json /samba/share/MembersData/"
 eval $"sudo cp $base_dir/devices.json /samba/share/MembersData/" 
 ## change ownership of these sub-folders accordinly
 sudo chown -R root:APIService /opt/FitnessCenterSrv/logs
-
-## ########################
-## SAMBA
-##  https://linuxconfig.org/how-to-configure-samba-server-share-on-ubuntu-18-04-bionic-beaver-linux
-##  https://stackoverflow.com/questions/24933661/multiple-connections-to-a-server-or-shared-resource-by-the-same-user-using-more
-##  https://devanswers.co/discover-ubuntu-machines-samba-shares-windows-10-network/
-## https://www.digitalocean.com/community/tutorials/how-to-set-up-a-samba-share-for-a-small-organization-on-ubuntu-16-04
-##
-## net use * /delete.
-## smbclient //localhost/MembersData -U fitnessUser
-
 ##
 ## Add "fitnessUser" as a new user in sambashare group  / do not create a Home dir, disable shell access for this user. 
 ## This use can now login to the shared drive.
-eval $"sudo cp $base_dir/smb.conf /etc/samba/" 
-
 sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare fitnessUser
 pass=fitnessUser2020
 (echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
 sudo smbpasswd -e fitnessUser
 sudo gpasswd -a fitnessUser sambashare
-## Add "fitnessUser2" as a new user in sambashare2 group  / do not create a Home dir, disable shell access for this user. 
-sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare2 fitnessUser2
-(echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
-sudo smbpasswd -e fitnessUser2
-sudo gpasswd -a fitnessUser2 sambashare2
-sudo gpasswd -a fitnessUser sambashare2
-
-
-# Ownership and permissions 
-sudo chown -R root:APIService /opt/FitnessCenterSrv
-find /opt/FitnessCenterSrv -type f -exec sudo chmod 0660 {} \;
-sudo find /opt/FitnessCenterSrv -type d -exec sudo chmod 2770 {} \;
-
 # START the SAMBA server
 sudo systemctl restart smbd nmbd
 #
+##
+# Overall Ownership and permissions 
+sudo chown -R root:APIService /opt/FitnessCenterSrv
+find /opt/FitnessCenterSrv -type f -exec sudo chmod 0660 {} \;
+sudo find /opt/FitnessCenterSrv -type d -exec sudo chmod 2770 {} \;
 #
 ## Connect an existing network drive folder to the ~/mnt/share/FitnessCenter
 ## This will be used to pass membership data and check-in data from/to the clie$

@@ -1,7 +1,6 @@
 #!/bin/bash
-# STOP the web server 
+# STOP the API web server 
 cd /opt/FitnessCenterSrv
-sudo systemctl quit nginx
 sudo service smbd stop
 sudo pm2 stop app.js
 
@@ -12,11 +11,10 @@ sudo chmod +x restartServer.sh
 sudo chmod +x stopServer.sh
 sudo chmod +x serverStatus.sh
 #run the web server app as a background process
-sudo nginx -t
-sudo systemctl start nginx
-sudo pm2 start app.js --watch --ignore-watch="[BAK, MembersData]" --name="Fitness Center App"
+#sudo nginx -t
+sudo systemctl reload nginx
 sudo pm2 startup systemd
-sudo systemctl status nginx
-sudo pm2 status
+sudo pm2 start app.js --watch --ignore-watch="[BAK, logs, MembersData]" --name="Fitness Center App"
 #
 sudo systemctl restart smbd nmbd
+
