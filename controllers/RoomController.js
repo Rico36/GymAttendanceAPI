@@ -43,6 +43,10 @@ let RoomController = {
     create: async (req, res) => {
         const data = req.body || {};
         debug("RoomController.create("+ JSON.stringify(data)+")");
+
+        if(!("rm" in data))  
+            return res.status(422).send('The field "rm" (room name) is required in the body section.');
+
         try {
             let Room = req.app.get('Room');
             debug("RoomController.create(cont.)");
@@ -59,6 +63,7 @@ let RoomController = {
     },
     update: async (req, res) => {  
         const data = req.body || {};
+        var rm = req.params.rm;
         //console.log(JSON.stringify(data));
         if( data )
            if(!("rm" in data))  
@@ -66,9 +71,14 @@ let RoomController = {
 
         debug("RoomController.update("+data.rm+")");
 
+        if( "rm" in data )
+            rm = data.rm;
+
+      debug("MemberController.update("+userid+")");
+
         try {
             let Room = req.app.get('Room');
-            await Room.findOneAndUpdate({rm: { $regex : new RegExp(req.params.rm, "i")}}, data, {  
+            await Room.findOneAndUpdate({rm: { $regex : new RegExp(rm, "i")}}, data, {  
                                                                                             returnOriginal: false, 
                                                                                             upsert: true,  // Make this update into an upsert 
                                                                                             rawResult: true }) // Return the raw result from the MongoDB driver 
@@ -83,8 +93,31 @@ let RoomController = {
         catch (err) { console.log("RoomController.update() err: "+err.message) };
     },
     delete: async (req, res) => {
-        let done  = await  req.app.get('Room').remove({rm: { $regex : new RegExp(req.params.rm, "i")}});
-        res.json('Success');
+        const data = req.body || {};
+        var rm = req.params.rm;
+        let ommit=false; // default
+
+        if("ommit" in data) ommit=data.ommit;
+
+        if(!("rm" in data))  
+           return (ommit ?  1 : res.status(422).send('The field "rm" is required.'));
+
+        if( "rm" in data )
+            rm = data.rm;
+        
+        debug("RoomController.delete("+rm+")");
+        try {
+            let Room = req.app.get('Room');
+            await Room.deleteOne({rm: { $regex : new RegExp(rm, "i")}})
+                .then(room => {
+                    return (ommit ?  0 :res.json('Success'));
+                })
+                .catch(err => {
+                    logger.error(err);
+                    return (ommit ?  1 :res.status(500).send(err));
+                });
+        }
+        catch (err) { console.log("RoomController.delete() err: "+err.message) };
     },
 }
 

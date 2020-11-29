@@ -150,47 +150,36 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
 // '''''''''''''''''''''''''''''''''''''''
 router.post("/deviceReg", async (request,res) => {
    try {
-         if( devices.length == 0)
-           await reloadDevices(request);
-         
-         debug (`Authorizing device ${request.header('DeviceToken')}...`); // + JSON.stringify(request.body));  
-         var data = JSON.parse(JSON.stringify(request.body));
-         debug( "   Device name: " + data.name);
-         // iterate through the in-memory JSON records to find the device
-         var device = devices.find(_device => _device.deviceToken === data.deviceToken);
-         var approvedDevice;
-         debug("In-mem device list: "+ JSON.stringify(devices));
-         debug("In-mem device match: "+ JSON.stringify(device));
-         if( device ) // if found
-            if(("active" in device) && device.active)  // and active=true
-               approvedDevice = device; // approved device !
-         if (approvedDevice) {
-            debug( "approvedDevice: " + JSON.stringify(approvedDevice));
-            const logger = log4js.getLogger('regDevices');
-            logger.info(JSON.stringify(request.body));
-            logger.info(JSON.stringify(approvedDevice) + " / "+ `sessionID: ${data.sessionID}`);
-            res.status(200).json(approvedDevice);
-         } else {
-            // check if this device was recently added to the database but is not in our memory cache
-            console.log("Checking if device is in the database..");
-            await getDeviceFromDB(data.deviceToken,request).then(device => {
-                 console.log("device: "+ JSON.stringify(device));
-                 if( (device != null) && ("active" in device[0]) && device[0].active) {
-                     debug( "approvedDevice: " + JSON.stringify(device));
-                     res.status(200).json(device);
-                     reloadDevices(request);  // Lets update the memory cache from the database
-                 }
-                 else { // Not registered. 
-                  //Add this device as "not activated" in the Device table for possible later activation.
-                  json = { message: `Device ${data.deviceToken} not registered.`};
-                  res.status(404).send(json);
-                  DeviceControls.update(request, res, true);
-                  const logger = log4js.getLogger('UnregDevices');
-                  logger.info(`Device named: ${data.name}, deviceToken: ${data.deviceToken} `);
-                  console.log( `Unregistered: ${data.name}, deviceToken: ${data.deviceToken} `);
-                 }
-            })
-         }
+        await reloadDevices(request)
+           .then( deviceList => {
+                  devices = deviceList;  // <=== re-load the list of devices to in-mem buffer       
+
+                  debug (`Authorizing device ${request.header('DeviceToken')}...`); // + JSON.stringify(request.body));  
+                  var data = JSON.parse(JSON.stringify(request.body));
+                  var device;
+                  var approvedDevice;
+                  debug( "   Device name: " + data.name);
+                  debug("In-mem Devices: "+devices.length); // JSON.stringify(devices));
+                  if( devices.length >0) { // check in the in-mem buffer is empty
+                     // iterate through the in-memory JSON records to find the device
+                     device = devices.find(_device => _device.deviceToken === data.deviceToken);
+                     debug("In-mem found: "+JSON.stringify(device)); 
+                     if( (device) && ("active" in device) && device.active) {
+                        approvedDevice = device;
+                        debug( "approvedDevice: " + JSON.stringify(approvedDevice));
+                        res.status(200).json(approvedDevice);
+                     }
+                     else {
+                        json = { message: `Device ${data.deviceToken} not registered.`};
+                        res.status(404).send(json);
+                        request.ommit=true;
+                        // Write the new device token into the database as "inactive" device. 
+                        DeviceControls.update(request, res);
+                        debug( `Unregistered: ${data.name}, deviceToken: ${data.deviceToken} `);      
+                     }
+                  }                 
+               })
+               .catch(err => { throw err }); 
       } catch (err) { 
          const logger = log4js.getLogger('error');
          logger.error("/deviceReg: "+err);  
@@ -200,10 +189,8 @@ router.post("/deviceReg", async (request,res) => {
  });
 
 
-
-
 // Download the list of check-ins (.JSON).  Presumably a server will do something with this list and possibly clear the list.
-router.get('/checkins/download', async (req, res) => {
+router.get('/checkins/download', authDevice, async (req, res) => {
    console.log ("Sending updated list of check-ins for download");
    // get current membership records 
     var usersProjection = { 
@@ -261,7 +248,7 @@ router.get("/checkins", authDevice, async (req, res) => {
             var checkins= request.body;
             //console.log ("Got a POST request with: "+ JSON.stringify(request.body));  
             debug ( "Adding "+checkins.length + " check-in(s) from device: "+request.header('DeviceToken'));
-            await req.app.get('db').collection("Checkin").insertMany(checkins,function (err,data) {
+            await request.app.get('db').collection("Checkin").insertMany(checkins,function (err,data) {
                ;  
             })
            response.json('message: ok');
@@ -309,12 +296,14 @@ router.get("/checkins", authDevice, async (req, res) => {
    let deviceId = req.header('DeviceToken');
    //debug ("authDevice() authorizing: "+ deviceId);
    try {
-      const deviceInfo = devices.find(_item => _item.deviceToken.toLowerCase() === deviceId.toLowerCase());
-      if (deviceInfo == null) {
-         return res.status(404).json({ message: "Unable to authorize." });
+      const device = devices.find(_item => _item.deviceToken.toLowerCase() === deviceId.toLowerCase());
+      if( device && ("active" in device) && device.active ) {
+         res.device = {deviceAuth: true};
+         debug ("authDevice() authorized: "+ deviceId);     
       }
-      res.device = {deviceAuth: true};
-      debug ("authDevice() authorized: "+ deviceId);  
+      else {
+         return res.status(500).json({ message: "Access denied." });
+      }
       next();
    
    } catch (err) {
@@ -345,20 +334,24 @@ async function getDeviceFromDB (token, req) {
 // --------------------------
 function reloadDevices(req) {
    console.log ("Re-loading the list of devices");
-   // get current membership records 
-   var datProjection = { 
-      __v: false,
-      _id: false,
-      sessionID: false
-   };
-   req.app.get('Device').find({}, datProjection, function (err, lstDevices) {
-      if (err) {     
-         console.log('loadDevices(): ', err.message);
-      } else {
-         // this is a memory variable that holds the list
-         devices = lstDevices;
-      }
-   });
+   return new Promise((resolve, reject) => {
+         // get current membership records 
+         var datProjection = { 
+            __v: false,
+            _id: false,
+            sessionID: false
+         };
+         req.app.get('Device').find({}, datProjection, function (err, lstDevices) {
+            if (err) {     
+               console.log('reloadDevices(): ', err.message);
+               return reject(err.message);
+            } else {
+               // this is a memory variable that holds the list
+               debug("reloadDevices() devices= "+JSON.stringify(lstDevices));
+               return resolve(lstDevices);
+            }
+         });
+      })
 }    
 
  // -------------------

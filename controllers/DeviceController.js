@@ -42,7 +42,11 @@ let DeviceController = {
     },
     create: async (req, res) => {
         const data = req.body || {};
-        debug("DeviceController.create("+ JSON.stringify(data)+")");
+
+        if(!("deviceToken" in data))  
+           return (ommit ?  1 : res.status(422).send('The field "deviceToken" is required.'));
+
+        debug("DeviceController.create("+data.deviceToken+","+data.deviceName+")");
         try {
             let Device = req.app.get('Device');
             debug("DeviceController.create(cont.)");
@@ -57,17 +61,26 @@ let DeviceController = {
         }
         catch (err) { console.log("DeviceController.create() err: "+err.message) };
     },
-    update: async (req, res, ommit=false) => {
+    update: async (req, res) => {
         const data = req.body || {};
-        if( data )
+        var deviceToken= req.params.deviceToken;  // if user passed the deviceToken in the ORL, use that
+        let ommit=false; // default
+
+        //console.log("update() data: "+JSON.stringify(data));
+        if("ommit" in req) ommit=req.ommit;
+        //console.log("update() ommit: "+ommit);
+        
         if(!("deviceToken" in data))  
            return (ommit ?  1 : res.status(422).send('The field "deviceToken" is required.'));
+ 
+        if( "deviceToken" in data )
+           deviceToken = data.deviceToken;
 
-        debug("DeviceController.update()");
+         debug("DeviceController.update("+deviceToken+")");
 
         try {
             let Device = req.app.get('Device');
-            await Device.findOneAndUpdate({deviceToken: { $regex : new RegExp(req.params.deviceToken, "i")}}, data, {  
+            await Device.findOneAndUpdate({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, data, {  
                                                                                             returnOriginal: false, 
                                                                                             upsert: true,  // Make this update into an upsert 
                                                                                             rawResult: true }) // Return the raw result from the MongoDB driver 
@@ -82,8 +95,33 @@ let DeviceController = {
         catch (err) { console.log("DeviceController.update() err: "+err.message) };
     },
     delete: async (req, res) => {
-        let done  = await  req.app.get('Device').remove({deviceToken: { $regex : new RegExp(req.params.deviceToken, "i")}});
-        res.json('Success');
+        const data = req.body || {};
+        var deviceToken = req.params.deviceToken;
+        let ommit=false; // default
+
+        if("ommit" in data) ommit=data.ommit;
+        //console.log("delete() ommit: "+ommit);
+        
+        if(!("deviceToken" in data))  
+           return (ommit ?  1 : res.status(422).send('The field "deviceToken" is required.'));
+
+        if( "deviceToken" in data )
+            deviceToken = data.deviceToken;   
+
+        debug("DeviceController.delete("+deviceToken+")");
+        try {
+                let Device = req.app.get('Device');
+                await Device.deleteOne({deviceToken: { $regex : new RegExp(deviceToken, "i")}})
+                    .then(device => {
+                        return (ommit ?  0 :res.json('Success'));
+                    })
+                    .catch(err => {
+                        logger.error(err);
+                        return (ommit ?  1 :res.status(500).send(err));
+                    });
+            }
+            catch (err) { console.log("DeviceController.delete() err: "+err.message) };
+
     },
 }
 
