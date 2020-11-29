@@ -4,22 +4,16 @@
 // Author: Ricky Freyre -  3/10/2020
 // Note: This API can be hosted in Linux, FreeBSD, Windows and OS X. 
 // NOTE: You must set a few environment variables before running !!!! See readme.md file.
-//
-// DEPLOY AND RUN :
-//   d:> git commit -m "update commit"
-//   d:> npm start 
+
 // -----------------------------------------------------------------------
 //  Note:  see README.md file for install and setup instructions
 // -----------------------------------------------------------------------
 // 
-
 var express = require('express');
 var router = express.Router();
 var bodyParser = require("body-parser");
-const app = express();
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+var RoomControls = require("../controllers/RoomController.js");
+var DeviceControls = require("../controllers/DeviceController.js");
 
 // Global variables
 // My config file
@@ -34,41 +28,12 @@ var fs = require('fs');
 
 var debug = require('debug')('users');
 var os = require("os");
-
-
-// ................................
-// MONGO DB - Connect
-// ..................................
-const mongoose  = require("mongoose");
-//   const conStr = 'mongodb+srv://lord:<PASSWORD>@cluster0-eeev8.mongodb.net/tour-guide?retryWrites=true&w=majority';
-//   const DB = conStr.replace('<PASSWORD>','ADUSsaZEKESKZX');
-mongoose.connect(process.env.DATABASE_URL, {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      useUnifiedTopology: true,
-    })
-    .then(() => {
-      console.log("Connected to the database!");
-    })
-    .catch(err => {
-      console.log("Cannot connect to the database!", err);
-      process.exit();
-    });
-// get reference to database
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-
-// Database table
-var Member = require("../db/models/Member");
-var Checkin = require("../db/models/Checkin");
-var Device = require("../db/models/Device");
-
 // Holds the entire list of registered devices in memory
 var devices =  [];
 
 // Create file logging
 const log4js = require("log4js");
+const { HttpRequest } = require('aws-sdk');
 log4js.configure({
    appenders: {
      multi: { type: 'multiFile', base: 'logs/', property: 'categoryName', extension: '.log' }
@@ -79,7 +44,7 @@ log4js.configure({
  });
 
 // '''''''''''''''''''''''''''''''''''''''
-// GET request for the entire list of users @ http://..../users
+// GET request for the entire list of members @ http://..../api/
 // Allows working offline!!
 // '''''''''''''''''''''''''''''''''''''''
 // Get All Route
@@ -92,10 +57,10 @@ router.get("/", authDevice, async (req, res) => {
        _id: false
    };
 
-   Member.find({}, usersProjection, function (err, users) {
+   req.app.get('Member').find({}, usersProjection, function (err, users) {
       if (err) {     
          const logger = log4js.getLogger('error');
-         logger.info("Getting /users caught an error: "+err.message);
+         logger.info("Getting /api caught an error: "+err.message);
          console.log('caught', err.message);
          res.status(500).json({message: err.message})
       } else {
@@ -124,7 +89,7 @@ router.get("/", authDevice, async (req, res) => {
       res.member.active = req.body.active;
     }
     try {
-     const updatedMember = await res.member.save();
+     const updatedMember = await req.app.get('Member').save(res.member);
      } catch (err) {
        const logger = log4js.getLogger('error');
        logger.info(`Adding/updating member ${req.params.id} caught an error: `+err.message);
@@ -142,7 +107,7 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
       _id: false
   };
   try {  //console.log("hhsid: "+itemId);
-         Member.find({hhsid: { $regex : new RegExp(itemId, "i") }}, usersProjection, function (err, member) {
+         req.app.get('Member').find({hhsid: { $regex : new RegExp(itemId, "i") }}, usersProjection, function (err, member) {
             if (err) {     
                const logger = log4js.getLogger('error');
                logger.info("Getting /users caught an error: "+err.message);
@@ -164,7 +129,7 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
       _id: false
   };
   try {  //console.log("userid: "+itemId);
-         Member.find({userid: { $regex : new RegExp(itemId, "i") }}, usersProjection, function (err, member) {
+      req.app.get('Member').find({userid: { $regex : new RegExp(itemId, "i") }}, usersProjection, function (err, member) {
             if (err) {     
                const logger = log4js.getLogger('error');
                logger.info("Getting /users caught an error: "+err.message);
@@ -186,36 +151,43 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
 router.post("/deviceReg", async (request,res) => {
    try {
          if( devices.length == 0)
-           await reloadDevices();
+           await reloadDevices(request);
          
          debug (`Authorizing device ${request.header('DeviceToken')}...`); // + JSON.stringify(request.body));  
          var data = JSON.parse(JSON.stringify(request.body));
          debug( "   Device name: " + data.name);
          // iterate through the in-memory JSON records to find the device
-         var approvedDevice = devices.find(_device => _device.deviceToken === data.deviceToken);
-         res.set('Content-Type', 'text/json');
-         debug( "approvedDevice: " + JSON.stringify(approvedDevice));
+         var device = devices.find(_device => _device.deviceToken === data.deviceToken);
+         var approvedDevice;
+         debug("In-mem device list: "+ JSON.stringify(devices));
+         debug("In-mem device match: "+ JSON.stringify(device));
+         if( device ) // if found
+            if(("active" in device) && device.active)  // and active=true
+               approvedDevice = device; // approved device !
          if (approvedDevice) {
+            debug( "approvedDevice: " + JSON.stringify(approvedDevice));
             const logger = log4js.getLogger('regDevices');
             logger.info(JSON.stringify(request.body));
             logger.info(JSON.stringify(approvedDevice) + " / "+ `sessionID: ${data.sessionID}`);
             res.status(200).json(approvedDevice);
          } else {
-            // check if this device was recently added to the database
+            // check if this device was recently added to the database but is not in our memory cache
             console.log("Checking if device is in the database..");
-            await getDeviceFromDB(data.deviceToken).then(device => {
-                console.log("device: "+ JSON.stringify(device));
-                 if( device != null) {
+            await getDeviceFromDB(data.deviceToken,request).then(device => {
+                 console.log("device: "+ JSON.stringify(device));
+                 if( (device != null) && ("active" in device[0]) && device[0].active) {
                      debug( "approvedDevice: " + JSON.stringify(device));
                      res.status(200).json(device);
-                     reloadDevices();
+                     reloadDevices(request);  // Lets update the memory cache from the database
                  }
-                 else { // Not registered. Butt off.
+                 else { // Not registered. 
+                  //Add this device as "not activated" in the Device table for possible later activation.
                   json = { message: `Device ${data.deviceToken} not registered.`};
+                  res.status(404).send(json);
+                  DeviceControls.update(request, res, true);
                   const logger = log4js.getLogger('UnregDevices');
                   logger.info(`Device named: ${data.name}, deviceToken: ${data.deviceToken} `);
                   console.log( `Unregistered: ${data.name}, deviceToken: ${data.deviceToken} `);
-                  res.status(404).send(json);
                  }
             })
          }
@@ -239,7 +211,7 @@ router.get('/checkins/download', async (req, res) => {
         _id: false
     };
  
-   await Checkin.find({}, usersProjection, function (err, checkins) {
+   await req.app.get('Checkin').find({}, usersProjection, function (err, checkins) {
        if (err) {     
           const logger = log4js.getLogger('error');
           logger.info("Getting /checkins caught an error: "+err.message);
@@ -266,7 +238,7 @@ router.get("/checkins", authDevice, async (req, res) => {
         _id: false
     };
  
-    Checkin.find({}, usersProjection, function (err, checkins) {
+    req.app.get('Checkin').find({}, usersProjection, function (err, checkins) {
        if (err) {     
           const logger = log4js.getLogger('error');
           logger.info("Getting /checkins caught an error: "+err.message);
@@ -289,7 +261,7 @@ router.get("/checkins", authDevice, async (req, res) => {
             var checkins= request.body;
             //console.log ("Got a POST request with: "+ JSON.stringify(request.body));  
             debug ( "Adding "+checkins.length + " check-in(s) from device: "+request.header('DeviceToken'));
-            await db.collection("Checkin").insertMany(checkins,function (err,data) {
+            await req.app.get('db').collection("Checkin").insertMany(checkins,function (err,data) {
                ;  
             })
            response.json('message: ok');
@@ -316,7 +288,7 @@ router.get("/checkins", authDevice, async (req, res) => {
 
  router.get("/count",  function(req, res){
    console.log ("/count requested");
-   Member
+   req.app.get('Member')
     .estimatedDocumentCount()
     .then(docCount => {
         console.log(docCount);
@@ -351,14 +323,14 @@ router.get("/checkins", authDevice, async (req, res) => {
    }
 };
 
-async function getDeviceFromDB (token) {
+async function getDeviceFromDB (token, req) {
    var datProjection = { 
       __v: false,
        _id: false
     };
     let data;
     try {  console.log("token: "+token);
-        await Device.find({deviceToken: token}, datProjection, function (err, device) {
+        await req.app.get('Device').find({deviceToken: token}, datProjection, function (err, device) {
              data=device;
              return device;
          })
@@ -371,14 +343,15 @@ async function getDeviceFromDB (token) {
 // --------------------------
 // Load the list of devices 
 // --------------------------
-function reloadDevices() {
+function reloadDevices(req) {
    console.log ("Re-loading the list of devices");
    // get current membership records 
    var datProjection = { 
       __v: false,
-      _id: false
+      _id: false,
+      sessionID: false
    };
-    Device.find({}, datProjection, function (err, lstDevices) {
+   req.app.get('Device').find({}, datProjection, function (err, lstDevices) {
       if (err) {     
          console.log('loadDevices(): ', err.message);
       } else {

@@ -44,16 +44,53 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    ;
+    console.log("Connected to the database!");
   })
   .catch(err => {
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
-
+  var db = mongoose.connection;
+  db.on('error', console.error.bind(console, 'connection error:'));
+  
+  // Database model - tables/collections
+  var Member = require("./db/models/Member");
+  var Checkin = require("./db/models/Checkin");
+  var Device = require("./db/models/Device");
+  var Room = require("./db/models/Room");
   // Nexrt line is a built-in middleware function in Express. It parses incoming requests 
   // with JSON payloads and is based on body-parser. This will allow our servers to allow incoming .json file format.
   app.use(express.json());
+
+  var indexRouter = require('./routes/index');
+  var apiRouter = require('./routes/api');
+  var dbRouter = require('./routes/db');
+  var debug = require('debug')('users');
+  app.enable('trust proxy');
+  // view engine setup
+  app.set('view engine', 'ejs');
+  app.set('views', path.join(__dirname, 'views'));
+  app.set('css', path.join(__dirname+"/public", 'css'));
+  app.use(express.static(path.join(__dirname, 'public')))
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
+  app.use(cookieParser());
+  
+  app.use('/', indexRouter); 
+  app.use('/api', apiRouter);  // API 
+  app.use('/db', dbRouter); // CRUD functions and Reports
+
+  app.use(helmet());
+  app.use(logger('dev'));
+
+  
+// Make our db accessible to our routes
+  app.set('db',db); 
+  app.set('Member',Member); 
+  app.set('Checkin',Checkin); 
+  app.set('Device',Device); 
+  app.set('Room',Room); 
+  
 
 // ----------------------------------- 
 // SET FILE UPLOADS naming convention 
@@ -69,27 +106,6 @@ var storage = multer.diskStorage({
   }
 })
 var upload = multer({ storage: storage })
-
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var debug = require('debug')('users');
-
-app.enable('trust proxy');
-// view engine setup
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.set('css', path.join(__dirname+"/public", 'css'));
-app.use(express.static(path.join(__dirname, 'public')))
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-app.use(helmet());
-app.use(logger('dev'));
 
 // ------------------------------------------------
 // Here we handle receiving uploaded files (.json)

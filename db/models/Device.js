@@ -6,7 +6,7 @@ const deviceSchema = new Schema({
     deviceToken: String,
     deviceName: String,
     rm: String,
-    active: Boolean
+    active: { type : Boolean, default: false}
   },
   { collection: "devices"},
   { timestamps: true }
