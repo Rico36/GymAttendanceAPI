@@ -22,6 +22,7 @@ let MemberController = {
         const data = req.body || {};
         var userid = req.params.userid;
         if( "userid" in data )  userid = data.userid; 
+        logger.info("MemberController.Find("+userid+")");
         debug("MemberController.Find("+userid+")");
        let found;
        if (req.params.userid.length == 10 ) 
@@ -34,6 +35,7 @@ let MemberController = {
         res.json(found);
     },
     all: async (req, res) => {
+        logger.info("MemberController.all()");
         let allMembers = await req.app.get('Member').find({}, usersProjection);
         res.json(allMembers);
     },
@@ -41,6 +43,7 @@ let MemberController = {
         const data = req.body || {};
         var userid = req.params.userid;
         if( "userid" in data )  userid = data.userid; 
+        logger.info("MemberController.activate("+userid+")");
         debug("MemberController.activate("+userid+")");
         let member = await req.app.get('Member').findOneAndUpdate({userid: { $regex : new RegExp(userid, "i")}},{ active: true}, { new: true });
         res.json('Success');
@@ -49,17 +52,20 @@ let MemberController = {
         const data = req.body || {};
         var userid = req.params.userid;
         if( "userid" in data )  userid = data.userid; 
+        logger.info("MemberController.deactivate("+userid+")");
         debug("MemberController.deactivate("+userid+")");
         let member = await req.app.get('Member').findOneAndUpdate({userid: { $regex : new RegExp(userid, "i")}},{ active: false}, { new: true });
         res.json('Success');
     },
     create: async (req, res) => {
         const data = req.body || {};
-        debug("MemberController.create("+ JSON.stringify(data)+")");
 
         if(!("userid" in data))  
            return res.status(422).send('The field "userid"  is required in the body section.');
-
+        
+        logger.info("MemberController.create("+data.userid+")");
+        debug("MemberController.create("+ JSON.stringify(data)+")");
+   
         try {
             let Member = req.app.get('Member');
             debug("MemberController.create(cont.)");
@@ -76,7 +82,7 @@ let MemberController = {
     },
     update: async (req, res) => {
         const data = req.body || {};
-        var userid = req.params.userid;
+        var userid;
         let ommit=false; // default
         
         //console.log("update() data: "+JSON.stringify(data));
@@ -86,16 +92,16 @@ let MemberController = {
         if(!("userid" in data))  
            return (ommit ?  1 : res.status(422).send('The field "userid" is required.'));
 
-        debug("MemberController.update("+req.params.userid+")");
+        if(!("hhsid" in data))  
+            return (ommit ?  1 : res.status(422).send('The field "hhsid" is required.'));
 
-        if (data.hhsid) 
+           if (data.hhsid) 
             if (data.hhsid.length != 10 ) 
             return (ommit ?  1 : res.status(422).send('HHS-ID is required.'));
         
-        if( "userid" in data )
-           userid = data.userid;
-
-         debug("MemberController.update("+userid+")");
+        userid = data.userid;
+        logger.info("MemberController.update("+userid+")");
+        debug("MemberController.update("+userid+")");
 
         try {
             let Member = req.app.get('Member');
@@ -115,7 +121,7 @@ let MemberController = {
     },
     delete: async (req, res) => {
         const data = req.body || {};
-        var userid = req.params.userid;
+        var userid;
         let ommit=false; // default
 
         if("ommit" in data) ommit=data.ommit;
@@ -124,9 +130,8 @@ let MemberController = {
         if(!("userid" in data))  
            return (ommit ?  1 : res.status(422).send('The field "userid" is required.'));
 
-        if( "userid" in data )
-            userid = data.userid;
-
+        userid = data.userid;
+        logger.info("MemberController.delete("+userid+")");
         debug("MemberController.delete("+userid+")");
 
         try {

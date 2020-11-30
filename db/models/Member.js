@@ -5,9 +5,9 @@ const Schema = mongoose.Schema;
 const memberSchema = new Schema({
     hhsid: { type : String , unique : true, required: true, index: true,  dropDups: true },
     userid: { type : String , unique : true, required : true, index: true, dropDups: true },
-    Firstname: { type : String , uppercase: true },
-    Lastname: { type : String , uppercase: true },
-    active: { type : Boolean, default: false}
+    Firstname: { type : String , required : true, uppercase: true },
+    Lastname: { type : String , required : true, uppercase: true },
+    active: { type : Boolean, default: true}
   },
   { collection: "members"},
   { timestamps: true }

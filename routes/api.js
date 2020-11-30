@@ -33,7 +33,6 @@ var devices =  [];
 
 // Create file logging
 const log4js = require("log4js");
-const { HttpRequest } = require('aws-sdk');
 log4js.configure({
    appenders: {
      multi: { type: 'multiFile', base: 'logs/', property: 'categoryName', extension: '.log' }

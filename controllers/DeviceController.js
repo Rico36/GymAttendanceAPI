@@ -21,6 +21,9 @@ let DeviceController = {
     find: async (req, res) => {
         const data = req.body || {};
         var deviceToken = req.params.deviceToken;
+
+        console.log("params: "+JSON.stringify(req.params))
+
         let ommit=false; // default
 
         if("ommit" in data) ommit=data.ommit;
@@ -29,13 +32,15 @@ let DeviceController = {
         if( "deviceToken" in data )
             deviceToken = data.deviceToken;   
 
-       debug("DeviceController.Find("+deviceToken+")");
+        logger.info("DeviceController.Find("+deviceToken+")");
+        debug("DeviceController.Find("+deviceToken+")");
        // use regEx to make the search non-case sensitive.
         let  found = await req.app.get('Device').find({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, usersProjection);
 
         res.json(found);
     },
     all: async (req, res) => {
+        logger.info("DeviceController.all()");
         debug("DeviceController.all()");
         let allDevices = await req.app.get('Device').find({}, usersProjection);
         res.json(allDevices);
@@ -44,6 +49,7 @@ let DeviceController = {
         const data = req.body || {};
         var deviceToken = req.params.deviceToken;
         if( "deviceToken" in data )  deviceToken = data.deviceToken;   
+        logger.info("DeviceController.activate("+deviceToken+")");
         debug("DeviceController.activate("+deviceToken+")");
         let device = await req.app.get('Device').findOneAndUpdate({deviceToken: { $regex : new RegExp(deviceToken, "i")}},{ active: true}, { new: true });
         res.json('Success');
@@ -62,6 +68,7 @@ let DeviceController = {
         if(!("deviceToken" in data))  
            return (ommit ?  1 : res.status(422).send('The field "deviceToken" is required.'));
 
+        logger.info("DeviceController.create("+data.deviceToken+","+data.deviceName+")");
         debug("DeviceController.create("+data.deviceToken+","+data.deviceName+")");
         try {
             let Device = req.app.get('Device');
@@ -91,6 +98,7 @@ let DeviceController = {
         if( "deviceToken" in data )
            deviceToken = data.deviceToken;
 
+         logger.info("DeviceController.update("+deviceToken+")");
          debug("DeviceController.update("+deviceToken+")");
 
         try {
@@ -111,7 +119,7 @@ let DeviceController = {
     },
     delete: async (req, res) => {
         const data = req.body || {};
-        var deviceToken = req.params.deviceToken;
+        var deviceToken ;
         let ommit=false; // default
 
         if("ommit" in data) ommit=data.ommit;
@@ -120,9 +128,9 @@ let DeviceController = {
         if(!("deviceToken" in data))  
            return (ommit ?  1 : res.status(422).send('The field "deviceToken" is required.'));
 
-        if( "deviceToken" in data )
-            deviceToken = data.deviceToken;   
-
+        deviceToken = data.deviceToken;   
+        
+        logger.info("DeviceController.delete("+deviceToken+")");
         debug("DeviceController.delete("+deviceToken+")");
         try {
                 let Device = req.app.get('Device');

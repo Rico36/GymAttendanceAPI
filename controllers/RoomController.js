@@ -21,7 +21,8 @@ let RoomController = {
     find: async (req, res) => {
         const data = req.body || {};
         var rm = req.params.rm;
-        if( "rm" in data )  userid = data.userid;        
+        if( "rm" in data )  rm = data.rm;        
+        logger.info("RoomController.Find("+rm+")");
         debug("RoomController.Find("+rm+")");
        // use regEx to make the search non-case sensitive.
         let  found = await req.app.get('Room').find({rm: { $regex : new RegExp(rm, "i")}}, usersProjection);
@@ -29,13 +30,15 @@ let RoomController = {
         res.json(found);
     },
     all: async (req, res) => {
+        logger.info("RoomController.all()");
         let allRooms = await req.app.get('Room').find({}, usersProjection);
         res.json(allRooms);
     },
     activate: async (req, res) => {
         const data = req.body || {};
         var rm = req.params.rm;
-        if( "rm" in data )  userid = data.userid;   
+        if( "rm" in data )  rm = data.rm;   
+        logger.info("RoomController.activate("+rm+")");
         debug("RoomController.activate("+rm+")");
         let room = await req.app.get('Room').findOneAndUpdate({rm: { $regex : new RegExp(rm, "i")}},{ active: true}, { new: true });
         res.json('Success');
@@ -43,7 +46,8 @@ let RoomController = {
     deactivate: async (req, res) => {
         const data = req.body || {};
         var rm = req.params.rm;
-        if( "rm" in data )  userid = data.userid;   
+        if( "rm" in data )  rm = data.rm;   
+        logger.info("RoomController.deactivate("+rm+")");
         debug("RoomController.deactivate("+rm+")");
         let room = await req.app.get('Room').findOneAndUpdate({rm: { $regex : new RegExp(rm, "i")}},{ active: false}, { new: true });
         res.json('Success');
@@ -54,6 +58,8 @@ let RoomController = {
 
         if(!("rm" in data))  
             return res.status(422).send('The field "rm" (room name) is required in the body section.');
+
+        logger.info("RoomController.create("+data.rm+")");
 
         try {
             let Room = req.app.get('Room');
@@ -71,18 +77,14 @@ let RoomController = {
     },
     update: async (req, res) => {  
         const data = req.body || {};
-        var rm = req.params.rm;
+        var rm ;
         //console.log(JSON.stringify(data));
-        if( data )
-           if(!("rm" in data))  
-              return res.status(422).send('The field "rm" (room name) is required.');
+        if(!("rm" in data))  
+            return res.status(422).send('The field "rm" (room name) is required.');
 
-        debug("RoomController.update("+data.rm+")");
-
-        if( "rm" in data )
-            rm = data.rm;
-
-      debug("MemberController.update("+userid+")");
+        rm = data.rm;
+        logger.info("RoomController.update("+rm+")");
+        debug("MemberController.update("+rm+")");
 
         try {
             let Room = req.app.get('Room');
@@ -110,9 +112,8 @@ let RoomController = {
         if(!("rm" in data))  
            return (ommit ?  1 : res.status(422).send('The field "rm" is required.'));
 
-        if( "rm" in data )
-            rm = data.rm;
-        
+        rm = data.rm;
+        logger.info("RoomController.delete("+rm+")");  
         debug("RoomController.delete("+rm+")");
         try {
             let Room = req.app.get('Room');

@@ -3,10 +3,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const MySchema = new Schema({
-    rm: String,
+    rm: { type : String , unique : true, required: true, index: true,  dropDups: true },
     lat: String,
     lng: String,
-    active: { type : Boolean, default: false}
+    active: { type : Boolean, default: true}
   },
   { collection: "rooms"}
 );

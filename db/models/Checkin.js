@@ -3,9 +3,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const checkinSchema = new Schema({
-    userid: String,
-    date: Date,   // date + time of check-in
-    rm: String,
+    userid: { type : String , required: true, index: true,  dropDups: false },
+    date: { type : Date , required: true, index: true,  dropDups: false },
+    rm: { type : String , required: true, index: true,  dropDups: false },
     lat: String,
     lng: String
   },
