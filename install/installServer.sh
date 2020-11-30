@@ -165,6 +165,13 @@ sudo find /opt/FitnessCenterSrv -type d -exec sudo chmod 2770 {} \;
 #
 #
 ## install the latest version of Nginx from the official repository
+##
+##  sudo tail -f /var/log/nginx/error.log
+##  sudo tail -f /var/log/nginx/access.log
+##  sudo grep -r listen /etc/nginx/*
+
+##  sudo systemctl restart nginx
+##
 sudo wget --quiet http://nginx.org/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
 sudo apt install nginx -y
 sudo rm /etc/nginx/sites-enabled/default
