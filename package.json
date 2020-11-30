@@ -18,6 +18,8 @@
     "express": "~4.16.1",
     "helmet": "^4.2.0",
     "http-errors": "~1.6.3",
+    "jquery": "^3.5.1",
+    "jsgrid": "^1.5.3",
     "log4js": "^6.3.0",
     "moment": "^2.29.1",
     "mongoose": "^5.10.16",
