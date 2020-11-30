@@ -20,11 +20,13 @@ let MemberController = {
 
     find: async (req, res) => {
         const data = req.body || {};
-       debug("MemberController.Find("+req.params.userid+")");
+        var userid = req.params.userid;
+        if( "userid" in data )  userid = data.userid; 
+        debug("MemberController.Find("+userid+")");
        let found;
        if (req.params.userid.length == 10 ) 
             // use regEx to make the search non-case sensitive.
-            found = await req.app.get('Member').find({hhsid: { $regex : new RegExp(req.params.userid, "i")}}, usersProjection);
+            found = await req.app.get('Member').find({hhsid: { $regex : new RegExp(userid, "i")}}, usersProjection);
         else
             // use regEx to make the search non-case sensitive.
             found = await req.app.get('Member').find({userid: { $regex : new RegExp(req.params.userid, "i")}}, usersProjection);
@@ -36,13 +38,19 @@ let MemberController = {
         res.json(allMembers);
     },
     activate: async (req, res) => {
-        debug("MemberController.activate("+req.params.userid+")");
-        let member = await req.app.get('Member').findOneAndUpdate({userid: { $regex : new RegExp(req.params.userid, "i")}},{ active: true}, { new: true });
+        const data = req.body || {};
+        var userid = req.params.userid;
+        if( "userid" in data )  userid = data.userid; 
+        debug("MemberController.activate("+userid+")");
+        let member = await req.app.get('Member').findOneAndUpdate({userid: { $regex : new RegExp(userid, "i")}},{ active: true}, { new: true });
         res.json('Success');
     },
     deactivate: async (req, res) => {
-        debug("MemberController.deactivate("+req.params.userid+")");
-        let member = await req.app.get('Member').findOneAndUpdate({userid: { $regex : new RegExp(req.params.userid, "i")}},{ active: false}, { new: true });
+        const data = req.body || {};
+        var userid = req.params.userid;
+        if( "userid" in data )  userid = data.userid; 
+        debug("MemberController.deactivate("+userid+")");
+        let member = await req.app.get('Member').findOneAndUpdate({userid: { $regex : new RegExp(userid, "i")}},{ active: false}, { new: true });
         res.json('Success');
     },
     create: async (req, res) => {

@@ -19,25 +19,41 @@ log4js.configure({
 let DeviceController = {
 
     find: async (req, res) => {
-       const data = req.body || {};
-       debug("DeviceController.Find("+req.params.deviceToken+")");
+        const data = req.body || {};
+        var deviceToken = req.params.deviceToken;
+        let ommit=false; // default
+
+        if("ommit" in data) ommit=data.ommit;
+        //console.log("delete() ommit: "+ommit);
+        
+        if( "deviceToken" in data )
+            deviceToken = data.deviceToken;   
+
+       debug("DeviceController.Find("+deviceToken+")");
        // use regEx to make the search non-case sensitive.
-        let  found = await req.app.get('Device').find({deviceToken: { $regex : new RegExp(req.params.deviceToken, "i")}}, usersProjection);
+        let  found = await req.app.get('Device').find({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, usersProjection);
 
         res.json(found);
     },
     all: async (req, res) => {
+        debug("DeviceController.all()");
         let allDevices = await req.app.get('Device').find({}, usersProjection);
         res.json(allDevices);
     },
     activate: async (req, res) => {
-        debug("DeviceController.activate("+req.params.deviceToken+")");
-        let device = await req.app.get('Device').findOneAndUpdate({deviceToken: { $regex : new RegExp(req.params.deviceToken, "i")}},{ active: true}, { new: true });
+        const data = req.body || {};
+        var deviceToken = req.params.deviceToken;
+        if( "deviceToken" in data )  deviceToken = data.deviceToken;   
+        debug("DeviceController.activate("+deviceToken+")");
+        let device = await req.app.get('Device').findOneAndUpdate({deviceToken: { $regex : new RegExp(deviceToken, "i")}},{ active: true}, { new: true });
         res.json('Success');
     },
     deactivate: async (req, res) => {
-        debug("DeviceController.deactivate("+req.params.deviceToken+")");
-        let device = await req.app.get('Device').findOneAndUpdate({deviceToken: { $regex : new RegExp(req.params.deviceToken, "i")}},{ active: false}, { new: true });
+        const data = req.body || {};
+        var deviceToken = req.params.deviceToken;
+        if( "deviceToken" in data )  deviceToken = data.deviceToken;   
+        debug("DeviceController.deactivate("+deviceToken+")");
+        let device = await req.app.get('Device').findOneAndUpdate({deviceToken: { $regex : new RegExp(deviceToken, "i")}},{ active: false}, { new: true });
         res.json('Success');
     },
     create: async (req, res) => {
@@ -49,7 +65,6 @@ let DeviceController = {
         debug("DeviceController.create("+data.deviceToken+","+data.deviceName+")");
         try {
             let Device = req.app.get('Device');
-            debug("DeviceController.create(cont.)");
             await Device.create(data)
                 .then(device => {
                     res.json(device);

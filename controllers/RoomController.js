@@ -20,9 +20,11 @@ let RoomController = {
 
     find: async (req, res) => {
         const data = req.body || {};
-       debug("RoomController.Find("+req.params.rm+")");
+        var rm = req.params.rm;
+        if( "rm" in data )  userid = data.userid;        
+        debug("RoomController.Find("+rm+")");
        // use regEx to make the search non-case sensitive.
-        let  found = await req.app.get('Room').find({rm: { $regex : new RegExp(req.params.rm, "i")}}, usersProjection);
+        let  found = await req.app.get('Room').find({rm: { $regex : new RegExp(rm, "i")}}, usersProjection);
 
         res.json(found);
     },
@@ -31,13 +33,19 @@ let RoomController = {
         res.json(allRooms);
     },
     activate: async (req, res) => {
-        debug("RoomController.activate("+req.params.rm+")");
-        let room = await req.app.get('Room').findOneAndUpdate({rm: { $regex : new RegExp(req.params.rm, "i")}},{ active: true}, { new: true });
+        const data = req.body || {};
+        var rm = req.params.rm;
+        if( "rm" in data )  userid = data.userid;   
+        debug("RoomController.activate("+rm+")");
+        let room = await req.app.get('Room').findOneAndUpdate({rm: { $regex : new RegExp(rm, "i")}},{ active: true}, { new: true });
         res.json('Success');
     },
     deactivate: async (req, res) => {
-        debug("RoomController.deactivate("+req.params.rm+")");
-        let room = await req.app.get('Room').findOneAndUpdate({rm: { $regex : new RegExp(req.params.rm, "i")}},{ active: false}, { new: true });
+        const data = req.body || {};
+        var rm = req.params.rm;
+        if( "rm" in data )  userid = data.userid;   
+        debug("RoomController.deactivate("+rm+")");
+        let room = await req.app.get('Room').findOneAndUpdate({rm: { $regex : new RegExp(rm, "i")}},{ active: false}, { new: true });
         res.json('Success');
     },
     create: async (req, res) => {

@@ -56,7 +56,7 @@ sudo git fetch --all
 sudo git reset --hard origin/master
 #
 #install dependencies
-npm install
+sudo npm install
 # ----------------------------------------------------
 ## Install MongoDB Service
 #
