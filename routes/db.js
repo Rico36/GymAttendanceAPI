@@ -12,26 +12,26 @@ router.get("/", function (req, res) {
     res.json( {message:  "ok"});
 });
 
-router.get("/members/create", MemberControls.create);
-router.get("/members/update", MemberControls.update);
-router.get("/members/delete", MemberControls.delete);
+router.post("/members/create", MemberControls.create);
+router.put("/members/update", MemberControls.update);
+router.delete("/members/delete", MemberControls.delete);
 router.get("/members", MemberControls.all);
 router.get("/members/:userid", MemberControls.find);
 router.get("/members/activate/:userid", MemberControls.activate);
 router.get("/members/deactivate/:userid", MemberControls.deactivate);
 router.get("/members/:hhsid", MemberControls.update);
 
-router.get("/rooms/create", RoomControls.create);
-router.get("/rooms/update", RoomControls.update);
-router.get("/rooms/delete", RoomControls.delete);
+router.post("/rooms/create", RoomControls.create);
+router.put("/rooms/update", RoomControls.update);
+router.delete("/rooms/delete", RoomControls.delete);
 router.get("/rooms", RoomControls.all);
 router.get("/rooms/:rm", RoomControls.find);
 router.get("/rooms/activate/:rm", RoomControls.activate);
 router.get("/rooms/deactivate/:rm", RoomControls.deactivate);
 
-router.get("/devices/create", DeviceControls.create);
-router.get("/devices/update", DeviceControls.update);
-router.get("/devices/delete", DeviceControls.delete);
+router.post("/devices/create", DeviceControls.create);
+router.put("/devices/update", DeviceControls.update);
+router.delete("/devices/delete", DeviceControls.delete);
 router.get("/devices", DeviceControls.all);
 router.get("/devices/:rm", DeviceControls.find);
 router.get("/devices/activate/:rm", DeviceControls.activate);

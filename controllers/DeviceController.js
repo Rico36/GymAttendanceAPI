@@ -21,8 +21,10 @@ let DeviceController = {
     find: async (req, res) => {
         const data = req.body || {};
         var deviceToken = req.params.deviceToken;
+        if( "deviceToken" in req.query )  deviceToken = req.query.deviceToken; 
+        if( "deviceToken" in data )  deviceToken = data.deviceToken; 
 
-        console.log("params: "+JSON.stringify(req.params))
+        //console.log("params: "+JSON.stringify(req.params))
 
         let ommit=false; // default
 
@@ -40,10 +42,21 @@ let DeviceController = {
         res.json(found);
     },
     all: async (req, res) => {
-        logger.info("DeviceController.all()");
-        debug("DeviceController.all()");
-        let allDevices = await req.app.get('Device').find({}, usersProjection);
-        res.json(allDevices);
+        const data = req.body || {};
+        var deviceToken;
+        if( "deviceToken" in req.query )  deviceToken = req.query.deviceToken; 
+
+        logger.info("DeviceController.all("+deviceToken+")");
+        debug("DeviceController.all("+deviceToken+")");
+        if (deviceToken) {
+            // use regEx to make the search non-case sensitive.
+            allDevices = await req.app.get('Device').find({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, usersProjection);
+            debug("DeviceController response= "+ JSON.stringify(allDevices) );
+        }
+        else
+          allDevices = await req.app.get('Device').find({}, usersProjection);
+
+          res.json(allDevices);
     },
     activate: async (req, res) => {
         const data = req.body || {};
@@ -106,7 +119,7 @@ let DeviceController = {
             await Device.findOneAndUpdate({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, data, {  
                                                                                             returnOriginal: false, 
                                                                                             upsert: true,  // Make this update into an upsert 
-                                                                                            rawResult: true }) // Return the raw result from the MongoDB driver 
+                                                                                            rawResult: false }) // Return the raw result from the MongoDB driver 
                 .then(device => {
                     return (ommit ?  0 :res.json(device));
                 })

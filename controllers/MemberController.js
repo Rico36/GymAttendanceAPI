@@ -20,10 +20,13 @@ let MemberController = {
 
     find: async (req, res) => {
         const data = req.body || {};
-        var userid = req.params.userid;
+        var userid = req.query.userid;
         if( "userid" in data )  userid = data.userid; 
         logger.info("MemberController.Find("+userid+")");
         debug("MemberController.Find("+userid+")");
+        debug("MemberController.Find(req.body)= "+ JSON.stringify(req.body) );
+        debug("MemberController.Find(req.params)= "+ JSON.stringify(req.params) );
+        debug("MemberController.Find(req.query)= "+ JSON.stringify(req.query) );
        let found;
        if (req.params.userid.length == 10 ) 
             // use regEx to make the search non-case sensitive.
@@ -35,8 +38,21 @@ let MemberController = {
         res.json(found);
     },
     all: async (req, res) => {
-        logger.info("MemberController.all()");
-        let allMembers = await req.app.get('Member').find({}, usersProjection);
+        const data = req.body || {};
+        var userid;
+        if( "userid" in req.query )  userid = req.query.userid; 
+
+        logger.info("MemberController.all("+userid+")");
+        debug("MemberController.all("+userid+")");
+        //debug("MemberController.all(req.query)= "+ JSON.stringify(req.query) );
+        if (userid) {
+            // use regEx to make the search non-case sensitive.
+            allMembers = await req.app.get('Member').find({userid: { $regex : new RegExp(userid, "i")}}, usersProjection);
+            debug("MemberController response= "+ JSON.stringify(allMembers) );
+        }
+        else
+            allMembers = await req.app.get('Member').find({}, usersProjection);
+
         res.json(allMembers);
     },
     activate: async (req, res) => {
@@ -85,7 +101,7 @@ let MemberController = {
         var userid;
         let ommit=false; // default
         
-        //console.log("update() data: "+JSON.stringify(data));
+        console.log("update() data: "+JSON.stringify(data));
         if("ommit" in req) ommit=req.ommit;
         //console.log("update() ommit: "+ommit);
         
@@ -108,7 +124,7 @@ let MemberController = {
             await Member.findOneAndUpdate({userid: { $regex : new RegExp(userid, "i")}}, data, {  
                                                                                             returnOriginal: false, 
                                                                                             upsert: true,  // Make this update into an upsert 
-                                                                                            rawResult: true }) // Return the raw result from the MongoDB driver 
+                                                                                            rawResult: false }) // Return the raw result from the MongoDB driver 
                 .then(member => {
                     return (ommit ?  0 :res.json(member));
                 })
@@ -147,6 +163,5 @@ let MemberController = {
         }
         catch (err) { console.log("MemberController.delete() err: "+err.message) };
     },
-}
-
+};
 module.exports = MemberController;

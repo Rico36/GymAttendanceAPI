@@ -20,4 +20,18 @@ router.get("/reports", function (req, res) {
   res.render("reports");
 })
 
+router.get("/membersGrid", function (req, res) {
+  console.log("/membersGrid");
+  res.render("membersGrid");
+})
+
+router.get("/devicesGrid", function (req, res) {
+  console.log("/devicesGrid");
+  res.render("devicesGrid");
+})
+
+router.get("/roomsGrid", function (req, res) {
+  console.log("/roomsGrid");
+  res.render("roomsGrid");
+})
 module.exports = router;

@@ -71,7 +71,13 @@ mongoose
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
   app.set('css', path.join(__dirname+"/public", 'css'));
-  app.use(express.static(path.join(__dirname, 'public')))
+  //app.use(express.static(path.join(__dirname, 'public')))
+  //set the path of the jquery file to be used from the node_module jquery package  
+  app.use('/jquery',express.static(path.join(__dirname+'/node_modules/jquery/dist/')));  
+
+  //set static folder(public) path  
+  app.use(express.static(path.join(__dirname+'/public')));  
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
@@ -79,7 +85,7 @@ mongoose
   app.use('/', indexRouter); 
   app.use('/api', apiRouter);  // API 
   app.use('/db', dbRouter); // CRUD functions and Reports
-
+  
   app.use(helmet());
   app.use(logger('dev'));
 

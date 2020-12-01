@@ -21,7 +21,9 @@ let RoomController = {
     find: async (req, res) => {
         const data = req.body || {};
         var rm = req.params.rm;
-        if( "rm" in data )  rm = data.rm;        
+        if( "rm" in req.query )  rm = req.query.rm; 
+        if( "rm" in data )  rm = data.rm; 
+
         logger.info("RoomController.Find("+rm+")");
         debug("RoomController.Find("+rm+")");
        // use regEx to make the search non-case sensitive.
@@ -30,8 +32,17 @@ let RoomController = {
         res.json(found);
     },
     all: async (req, res) => {
-        logger.info("RoomController.all()");
-        let allRooms = await req.app.get('Room').find({}, usersProjection);
+        var rm;
+        if( "rm" in req.query )  rm = req.query.rm; 
+        logger.info("RoomController.all("+rm+")");
+        if (rm) {
+            // use regEx to make the search non-case sensitive.
+            allDevices = await req.app.get('Room').find({rm: { $regex : new RegExp(rm, "i")}}, usersProjection);
+            debug("RoomeController response= "+ JSON.stringify(allDevices) );
+        }
+        else
+           allRooms = await req.app.get('Room').find({}, usersProjection);
+
         res.json(allRooms);
     },
     activate: async (req, res) => {
@@ -91,7 +102,7 @@ let RoomController = {
             await Room.findOneAndUpdate({rm: { $regex : new RegExp(rm, "i")}}, data, {  
                                                                                             returnOriginal: false, 
                                                                                             upsert: true,  // Make this update into an upsert 
-                                                                                            rawResult: true }) // Return the raw result from the MongoDB driver 
+                                                                                            rawResult: false }) // Return the raw result from the MongoDB driver 
                 .then(room => {
                     res.json(room);
                 })

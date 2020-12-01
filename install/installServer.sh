@@ -23,12 +23,8 @@ sudo apt-get install git
 ## The folder /Opt is reserved by Linux for additional software we little humans may install. 
 ## This is kind of like ‘Program Files’ for linux.
 sudo mkdir /opt/FitnessCenterSrv
-## Create a group to hold the list of accounts that R/W to the shared drive: Uploads
-sudo groupadd sambashare
 # Create group for admin accounts who need full access to execute programs, all data and system files
 sudo groupadd APIService
-## add me to these groups :-)
-sudo gpasswd -a "$USER" sambashare
 sudo gpasswd -a "$USER" APIService
 sudo gpasswd -a labadmin APIService
 
@@ -73,6 +69,7 @@ sudo apt install -y mongodb-org=4.4.1 mongodb-org-server=4.4.1 mongodb-org-shell
 sudo systemctl enable mongod.service
 sudo systemctl start mongod.service
 #
+cd /opt/FitnesssCenterSrv
 #
 ## ########################
 ## SAMBA
@@ -85,71 +82,82 @@ sudo systemctl start mongod.service
 ## smbclient //localhost/MembersData -U fitnessUser
 #
 ## Use SAMBA to share the MembrsData folder with the Fitness Center staff
-# INSTALL SAMBA -
-cd /opt/FitnesssCenterSrv
-sudo apt-get install samba -y
-sudo mkdir BAK
-sudo cp /etc/samba/smb.conf ./BAK
-sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
-sudo -- bash -c 'echo "writable = yes" >> /etc/samba/smb.conf'
+## Create a group to hold the list of accounts that R/W to the shared drive: Uploads
+#sudo groupadd sambashare
+## add me to this group :-)
+#sudo gpasswd -a "$USER" sambashare
+## INSTALL SAMBA -
+#cd /opt/FitnesssCenterSrv
+#sudo apt-get install samba -y
+#sudo mkdir BAK
+#sudo cp /etc/samba/smb.conf ./BAK
+#sudo -- bash -c 'echo "[MembersData]" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "path = /opt/FitnessCenterSrv/MembersData" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "available = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "guest ok = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "valid users = %S" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "read only = no" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "browsable = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "public = yes" >> /etc/samba/smb.conf'
+#sudo -- bash -c 'echo "writable = yes" >> /etc/samba/smb.conf'
+#
+## Create the sub-folders 
+#sudo mkdir -p /samba/share/MembersData
+#sudo chmod 2777 /samba/share/MembersData
+#sudo chgrp -hR sambashare /samba/share/MembersData
+## Make all files in MembersData read-only but preserve the executable permission on the Directory only.
+#sudo chmod -R a+rX /samba/share/MembersData/
+#sudo setfacl -m default:group:sambashare:r-x /samba/share/MembersData/
+#eval $"sudo cp $base_dir/smb.conf /etc/samba/" 
+## load the default JSON files into the /MembersData
+#eval $"sudo cp $base_dir/data.json /samba/share/MembersData/" 
+#eval $"sudo cp $base_dir/locations.json /samba/share/MembersData/" 
+#eval $"sudo cp $base_dir/checkins.json /samba/share/MembersData/" 
+#eval $"sudo cp $base_dir/devices.json /samba/share/MembersData/" 
 ##
+## Add "fitnessUser" as a new user in sambashare group  / do not create a Home dir, disable shell access for this user. 
+## This use can now login to the shared drive.
+#sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare fitnessUser
+#pass=fitnessUser2020
+#(echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
+#sudo smbpasswd -e fitnessUser
+#sudo gpasswd -a fitnessUser sambashare
+# START the SAMBA server
+#sudo systemctl restart smbd nmbd
+#
+#
+## ---------------------
 ## setup firewall
+## ---------------------
 sudo apt install ufw -y
 sudo ufw enable
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-sudo ufw allow ftp
+# Restrict access to internal LAN and certain IP range
+sudo ufw allow from 172.16.0.0/24 to any port ftp
+sudo ufw allow from 172.16.0.0/24 to any port ssh
+sudo ufw allow from 172.16.0.0/24 to any port 22 proto tcp
+sudo ufw allow from 172.16.0.0/24 to any port 21 proto tcp
+## deny SSH connections if an IP address attempts to initiate six or more connections within thirty seconds.
+sudo ufw limit ssh/tcp comment 'Rate limit for openssh server'
 sudo ufw allow 53
-sudo ufw allow ssh
-sudo ufw allow 22
-sudo ufw allow 8300/tcp
+sudo ufw allow 8300/tcp comment 'no access from internet'  # This is the port we use for the Express/nodejs server
+## The next few for Samba/wsdd:
 ##Ports 5357/tcp and 3702/udp need to be open for wsdd to run.
-sudo ufw allow 137/tcp
-sudo ufw allow 138/tcp
-sudo ufw allow 139/tcp
-sudo ufw allow 445/tcp
-sudo ufw allow 5357/tcp
-sudo ufw allow 3702/udp
-sudo ufw allow 'Samba'
+#sudo ufw allow 137/tcp
+#sudo ufw allow 138/tcp
+#sudo ufw allow 139/tcp
+#sudo ufw allow 445/tcp
+#sudo ufw allow 5357/tcp
+#sudo ufw allow 3702/udp
+#sudo ufw allow 'Samba'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw status verbose
 #
-## Create the sub-folders 
-sudo mkdir -p /samba/share/MembersData
 sudo mkdir logs
-sudo chmod 2777 /samba/share/MembersData
-sudo chgrp -hR sambashare /samba/share/MembersData
-# Make all files in MembersData read-only but preserve the executable permission on the Directory only.
-sudo chmod -R a+rX /samba/share/MembersData/
-sudo setfacl -m default:group:sambashare:r-x /samba/share/MembersData/
-eval $"sudo cp $base_dir/smb.conf /etc/samba/" 
-
-## load the default JSON files into the /MembersData
-eval $"sudo cp $base_dir/data.json /samba/share/MembersData/" 
-eval $"sudo cp $base_dir/locations.json /samba/share/MembersData/" 
-eval $"sudo cp $base_dir/checkins.json /samba/share/MembersData/" 
-eval $"sudo cp $base_dir/devices.json /samba/share/MembersData/" 
 ## change ownership of these sub-folders accordinly
 sudo chown -R root:APIService /opt/FitnessCenterSrv/logs
-##
-## Add "fitnessUser" as a new user in sambashare group  / do not create a Home dir, disable shell access for this user. 
-## This use can now login to the shared drive.
-sudo useradd -M -d /samba/share/MembersData -s /usr/sbin/nologin -G sambashare fitnessUser
-pass=fitnessUser2020
-(echo "$pass"; echo "$pass") | sudo smbpasswd -s -a fitnessUser
-sudo smbpasswd -e fitnessUser
-sudo gpasswd -a fitnessUser sambashare
-# START the SAMBA server
-sudo systemctl restart smbd nmbd
-#
 ##
 # Overall Ownership and permissions 
 sudo chown -R root:APIService /opt/FitnessCenterSrv
@@ -164,14 +172,17 @@ sudo find /opt/FitnessCenterSrv -type d -exec sudo chmod 2770 {} \;
 ###  (alternate command)sudo mount.cifs //<servername>/data ~/mnt/share/Fitness$
 #
 #
-## install the latest version of Nginx from the official repository
+## ---------------------
+## setup NGINX (reverse-proxy)
+## ---------------------
 ##
 ##  sudo tail -f /var/log/nginx/error.log
 ##  sudo tail -f /var/log/nginx/access.log
 ##  sudo grep -r listen /etc/nginx/*
-
+##
 ##  sudo systemctl restart nginx
 ##
+## install the latest version of Nginx from the official repository
 sudo wget --quiet http://nginx.org/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
 sudo apt install nginx -y
 sudo rm /etc/nginx/sites-enabled/default
@@ -179,7 +190,7 @@ cd /etc/nginx/sites-available
 eval $"sudo cp $base_dir/reverse-proxy.conf /etc/nginx/sites-available/"
 eval $"sudo cp $base_dir/self-signed.conf /etc/nginx/snippets/" 
 eval $"sudo cp $base_dir/ssl-params.conf /etc/nginx/snippets/" 
-
+#
 sudo sln -fs /etc/nginx/sites-available/reverse-proxy.conf /etc/nginx/sites-enabled/reverse-proxy.conf
 sudo systemctl restart nginx
 #
@@ -199,6 +210,3 @@ echo "--------------------------------------------------------------------------
 echo "NOTE: make sure valid certificates (.cert + .key) files are found in the /sec/cert folder"
 echo "Enter cert name changes in /etc/nginx/snippets/self-signed.conf"
 echo "----------------------------------------------------------------------------------------"
-#Optionally, run the web server app manually
-#cd /opt/FitnessCenterSrv
-#npm start

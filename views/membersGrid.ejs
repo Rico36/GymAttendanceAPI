@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/ico" href="favicon.ico" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+     
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+     
+    <!-- The main CSS file -->
+    <link href="css/style.css" rel="stylesheet" />
+
+    <%- include('./partials/head'); %>
+</head>
+<body class="container">
+
+<header>
+    <%- include('./partials/header'); %>
+</header>
+
+<main>
+    <div id="grid"></div> 
+        <script>
+             $("#grid").jsGrid({
+                width: "100%",
+                height: "710px",
+         
+                filtering: true,
+                inserting: true,
+                editing: true,
+                sorting: true,
+                paging: true,
+                autoload: true,
+                pagerFormat: "Pages: {first} {prev} {pages} {next} {last} &nbsp;&nbsp; {pageIndex} of {pageCount} / Total rows: {itemCount}",
+                deleteConfirm: "Do you really want to delete this member?",                
+                //pageLoading: true,
+                    beforeSubmit: function (postData) {
+                        postData.userid = postData.userid.toUpperCase();
+                        postData.hhsid = postData.hhsid.toUpperCase();
+                        postData.Firstname = postData.Firstname.toUpperCase();
+                        postData.Lastname = postData.Lastname.toUpperCase();
+                        return [true, ''];
+                    },
+            
+                controller: {       
+                    loadData: function(filter) {
+                        return $.ajax({
+                                type: "GET",
+                                url: "/db/members",
+                                data: filter,
+                              //  contentType: "application/json; charset=utf-8",
+                                dataType: "json"
+                            })                   
+                        },
+            // https://github.com/tabalinas/jsgrid-express/blob/master/public/js/sample.js
+                
+                insertItem: function(item) {
+                    return $.ajax({
+                        type: "POST",
+                        url: "/db/members/create",
+                        data: item,
+                        dataType: "json"
+                    });
+                },
+                updateItem: function(item) {
+                    return $.ajax({
+                        type: "PUT",
+                        url: "/db/members/update",
+                        data: item,
+                        dataType: "json"
+                    });
+                    item.grid.data[selectedRow] = item.item;
+                    $("#table").jsGrid("refresh");
+                },
+                deleteItem: function(item) {
+                    return $.ajax({
+                        type: "DELETE",
+                        url: "/db/members/delete",
+                        data: item,
+                        dataType: "json"
+                    });
+                }
+            },
+                pageSize: 12,
+                pageButtonCount: 8,
+                pageIndex: 1,
+            
+                noDataContent: "No Record Found",
+                loadIndication: true,
+                loadIndicationDelay: 500,
+                loadMessage: "Please, wait...",
+                loadShading: true,
+         
+                fields: [
+                    { name: "userid", type: "text", editing: false, width: 135, validate: "required" },
+                    { name: "hhsid", type: "text", width: 135, validate: "required", filtering: false },
+                    { name: "Firstname", type: "text", width: 220, validate: "required", filtering: false },
+                    { name: "Lastname", type: "text", width: 220, validate: "required", filtering: false },
+                    { name: "active", type: "checkbox", title: "Cleared", filtering: false },
+                    { type: "control" }
+                ],
+            });
+        </script>
+    </div>
+</main>
+<footer>
+    <%- include('./partials/footer'); %>
+</footer>
+
+</body>
+</html>
