@@ -19,7 +19,7 @@ var MemberControls = require("../controllers/MemberController.js");
 // Global variables
 // My config file
 //
-require("dotenv").config();
+//require("dotenv").config();
 const config = require('../config.json')
 // Request path module for relative path
 const path = require('path')
