@@ -19,7 +19,6 @@ var os = require("os");
 const express = require('express');
 var app = express();
 env = process.env.NODE_ENV || 'development';
-var helmet = require('helmet');
 
 // Determine port to listen on
 var httpPort = (process.env.PORT || process.env.VCAP_APP_PORT || 8300);
@@ -85,8 +84,7 @@ mongoose
   app.use('/', indexRouter); 
   app.use('/api', apiRouter);  // API 
   app.use('/db', dbRouter); // CRUD functions and Reports
-  
-  app.use(helmet());
+
   app.use(logger('dev'));
 
   
