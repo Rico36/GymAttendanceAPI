@@ -14,7 +14,7 @@
 //
 //
 //
-require("dotenv").config();
+//require("dotenv").config();
 var os = require("os");
 const express = require('express');
 var app = express();
@@ -36,7 +36,7 @@ var multer = require('multer');
 // ..................................
 const mongoose  = require("mongoose");
 mongoose
-  .connect(process.env.DATABASE_URL, {
+  .connect("mongodb://localhost:27017/Membership?readPreference=primary&appname=MongoDB%20Compass&ssl=false", {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
