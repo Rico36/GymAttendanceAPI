@@ -54,7 +54,7 @@ sudo git reset --hard origin/master
 #install dependencies
 sudo npm install
 # ----------------------------------------------------
-## Install MongoDB Service
+## Install MongoDB Service                              mongo, use Membership, use devices, db.devices.find()
 #
 #  Use the following commands to stop and restart the service
 #      sudo systemctl stop mongod.service

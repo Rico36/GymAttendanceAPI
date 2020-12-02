@@ -24,9 +24,9 @@ let MemberController = {
         if( "userid" in data )  userid = data.userid; 
         logger.info("MemberController.Find("+userid+")");
         debug("MemberController.Find("+userid+")");
-        debug("MemberController.Find(req.body)= "+ JSON.stringify(req.body) );
-        debug("MemberController.Find(req.params)= "+ JSON.stringify(req.params) );
-        debug("MemberController.Find(req.query)= "+ JSON.stringify(req.query) );
+     //   debug("MemberController.Find(req.body)= "+ JSON.stringify(req.body) );
+     //   debug("MemberController.Find(req.params)= "+ JSON.stringify(req.params) );
+     //   debug("MemberController.Find(req.query)= "+ JSON.stringify(req.query) );
        let found;
        if (req.params.userid.length == 10 ) 
             // use regEx to make the search non-case sensitive.
@@ -90,8 +90,8 @@ let MemberController = {
                     res.json(member);
                 })
                 .catch(err => {
-                    logger.error(err);
-                    res.status(500).send(err);
+                    logger.error(err.message);
+                    res.status(500).send(err.message);
                 });
         }
         catch (err) { console.log("MemberController.create() err: "+err.message) };
@@ -129,8 +129,8 @@ let MemberController = {
                     return (ommit ?  0 :res.json(member));
                 })
                 .catch(err => {
-                    logger.error(err);
-                    return (ommit ?  1 :res.status(500).send(err));
+                    logger.error(err.message);
+                    return (ommit ?  1 :res.status(500).send(err.message));
                 });
         }
         catch (err) { console.log("MemberController.update() err: "+err.message) };
@@ -157,8 +157,8 @@ let MemberController = {
                     return (ommit ?  0 :res.json('Success'));
                 })
                 .catch(err => {
-                    logger.error(err);
-                    return (ommit ?  1 :res.status(500).send(err));
+                    logger.error(err.message);
+                    return (ommit ?  1 :res.status(500).send(err.message));
                 });
         }
         catch (err) { console.log("MemberController.delete() err: "+err.message) };

@@ -20,7 +20,8 @@ let DeviceController = {
 
     find: async (req, res) => {
         const data = req.body || {};
-        var deviceToken = req.params.deviceToken;
+        var deviceToken;
+        if( "deviceToken" in req.params )  deviceToken = req.params.deviceToken; 
         if( "deviceToken" in req.query )  deviceToken = req.query.deviceToken; 
         if( "deviceToken" in data )  deviceToken = data.deviceToken; 
 
@@ -44,19 +45,39 @@ let DeviceController = {
     all: async (req, res) => {
         const data = req.body || {};
         var deviceToken;
+        if( "deviceToken" in req.params )  deviceToken = req.params.deviceToken; 
         if( "deviceToken" in req.query )  deviceToken = req.query.deviceToken; 
+        if( "deviceToken" in data )  deviceToken = data.deviceToken; 
 
         logger.info("DeviceController.all("+deviceToken+")");
         debug("DeviceController.all("+deviceToken+")");
         if (deviceToken) {
             // use regEx to make the search non-case sensitive.
-            allDevices = await req.app.get('Device').find({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, usersProjection);
-            debug("DeviceController response= "+ JSON.stringify(allDevices) );
+           // allDevices = await req.app.get('Device').find({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, usersProjection);
+            await req.app.get('Device')
+                .find({deviceToken: { $regex : new RegExp(deviceToken, "i")}}, usersProjection)
+                .then(device => {
+                    res.json(device);
+                })
+                .catch(err => {
+                    logger.error(err.message);
+                    res.status(500).send(err.message);
+                });
         }
-        else
-          allDevices = await req.app.get('Device').find({}, usersProjection);
+        else {
+            debug("sending all...");
+            allDevices = await req.app.get('Device').find({}, usersProjection);
+            await req.app.get('Device')
+                .find({}, usersProjection)
+                .then(allDevices => {
+                    res.json(allDevices);
+                })
+                .catch(err => {
+                    logger.error(err.message);
+                    res.status(500).send(err.message);
+                });
 
-          res.json(allDevices);
+        }
     },
     activate: async (req, res) => {
         const data = req.body || {};
