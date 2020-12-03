@@ -14,7 +14,8 @@ sudo chmod +x serverStatus.sh
 #sudo nginx -t
 sudo systemctl reload nginx
 sudo pm2 startup systemd
-sudo pm2 start app.js --watch --ignore-watch="[BAK, logs, MembersData]" --name="Fitness Center App"
+#sudo pm2 start app.js --watch --ignore-watch="[BAK, logs, MembersData]" --name="Fitness Center App"
+sudo pm2 start pm2.start.config.js
 #
 sudo systemctl restart smbd nmbd
 

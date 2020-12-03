@@ -177,7 +177,7 @@ sudo find /opt/FitnessCenterSrv -type d -exec sudo chmod 2770 {} \;
 ## ---------------------
 ##
 ##  sudo tail -f /var/log/nginx/error.log
-##  sudo tail -f /var/log/nginx/access.log
+##  sudo tail -f /var/log/nginx/access.log     sudo tail -f ~/.pm2/pm2.log
 ##  sudo grep -r listen /etc/nginx/*
 ##
 ##  sudo systemctl restart nginx
@@ -194,15 +194,18 @@ eval $"sudo cp $base_dir/ssl-params.conf /etc/nginx/snippets/"
 sudo sln -fs /etc/nginx/sites-available/reverse-proxy.conf /etc/nginx/sites-enabled/reverse-proxy.conf
 sudo systemctl restart nginx
 #
-#
+################################
 # Install a process manager PM2
 # A process manager for Node.js applications. PM2 makes it possibl$
 # daemonize applications so that they will run in the background 
 # as a service on server boots.
+# 
+#  See error log:   sudo tail -f ~/.pm2/pm2.log
+#
 sudo npm install pm2@latest -g
-#run the web server app as a background process
+# now run the web server app as a background process
 cd /opt/FitnessCenterSrv
-pm2 start app.js --watch --ignore-watch="[node_modules, MembersData]" --name="Fitness Center App"
+sudo pm2 start pm2.start.config.js
 pm2 startup systemd
 #
 #
