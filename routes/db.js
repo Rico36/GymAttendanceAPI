@@ -3,14 +3,16 @@ const express = require('express'),
     moment = require("moment"),
     MemberControls = require("../controllers/MemberController.js"),
     DeviceControls = require("../controllers/DeviceController.js"),
-    RoomControls = require("../controllers/RoomController.js");
-
+    RoomControls = require("../controllers/RoomController.js"),
+    CheckinControls = require("../controllers/CheckinController.js");
 
 // Get All 
 router.get("/", function (req, res) {
     console.log ("db/");
     res.json( {message:  "ok"});
 });
+
+router.get("/checkins", CheckinControls.all);
 
 router.post("/members/create", MemberControls.create);
 router.put("/members/update", MemberControls.update);

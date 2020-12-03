@@ -4,12 +4,14 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const checkinSchema = new Schema({
     userid: { type : String , required: true, index: true,  dropDups: false },
-    date: { type : Date , required: true, index: true,  dropDups: false },
+    dt: { type : Date , required: true, index: true,  dropDups: false },
     rm: { type : String , required: true, index: true,  dropDups: false },
-    lat: String,
-    lng: String
+    loc: {
+        lat: String,
+        lng: String
+    }
   },
-  { collection: "Checkins"},
+  { collection: "checkins"},
 );
 const Checkin = mongoose.model("Checkin", checkinSchema);
 module.exports = Checkin;

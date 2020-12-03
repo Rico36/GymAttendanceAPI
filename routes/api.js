@@ -232,7 +232,7 @@ router.get('/checkins/download', authDevice, async (req, res) => {
 // GET request will dump the entire list of check-ins 
 // records to the browser screen for viewing.
 // '''''''''''''''''''''''''''''''''''''''
-router.get("/checkins", authDevice, async (req, res) => {
+router.get("/checkins", async (req, res) => {
    console.log ("Sending updated list of check-ins to device: "+req.header('DeviceToken'));
    // get current membership records 
     var usersProjection = { 
@@ -240,16 +240,14 @@ router.get("/checkins", authDevice, async (req, res) => {
         _id: false
     };
  
-    req.app.get('Checkin').find({}, usersProjection, function (err, checkins) {
-       if (err) {     
-          const logger = log4js.getLogger('error');
-          logger.info("Getting /checkins caught an error: "+err.message);
-          console.log('caught', err.message);
-          res.status(500).json({message: err.message})
-       } else {
-          res.json(checkins)
-       }
-    });    
+    await req.app.get('Checkin')
+         .find({}, usersProjection)
+         .then(checkins => { res.json(checkins)})
+         .catch(err => {
+            logger.error(err).message;
+            res.status(500).send(err.message);
+         });
+   
  });
  
  
@@ -261,9 +259,8 @@ router.get("/checkins", authDevice, async (req, res) => {
    try {
             // get current checkins records held in storage 
             var checkins= request.body;
-            console.log ("Got a POST request with: "+ JSON.stringify(request.body));  
             debug ( "Adding "+checkins.length + " check-in(s) from device: "+request.header('DeviceToken'));
-            await request.app.get('db').collection("Checkin").insertMany(checkins,function (err,data) {
+            await request.app.get('db').collection("checkins").insertMany(checkins,function (err,data) {
                ;  
             })
            response.json('message: ok');
@@ -276,19 +273,7 @@ router.get("/checkins", authDevice, async (req, res) => {
             }
   });
 
-// '''''''''''''''''''''''''''''''''''''''
-// Delete individual member from database.
-// '''''''''''''''''''''''''''''''''''''''
-// router.delete("/:id", authDevice, async (req, res) => {
-//    try {
-//      await res.user.deleteOne();
-//      res.json({ message: "Member has been deleted" });
-//    } catch (err) {
-//      res.status(500).json({ message: err.message });
-//    }
-//  });
-
- router.get("/count",  function(req, res){
+ router.get("/membersCount",  function(req, res){
    console.log ("/count requested");
    req.app.get('Member')
     .estimatedDocumentCount()
@@ -297,11 +282,24 @@ router.get("/checkins", authDevice, async (req, res) => {
         res.json({ count: docCount });
     })
     .catch(err => {
-      console.log('/count caught error: ', err.message);
+      console.log('/memberCount caught error: ', err.message);
       res.status(500).json({ message: err.message });
    })
 });
 
+router.get("/checkinsCount",  function(req, res){
+   console.log ("/count requested");
+   req.app.get('Checkin')
+    .estimatedDocumentCount()
+    .then(docCount => {
+        console.log(docCount);
+        res.json({ count: docCount });
+    })
+    .catch(err => {
+      console.log('/checkinCount caught error: ', err.message);
+      res.status(500).json({ message: err.message });
+   })
+});
  // --------------------------------------------------------------------------------
  // Utilities
  // --------------------------------------------------------------------------------

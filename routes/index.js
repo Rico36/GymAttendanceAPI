@@ -34,4 +34,10 @@ router.get("/roomsGrid", function (req, res) {
   console.log("/roomsGrid");
   res.render("roomsGrid");
 })
+
+
+router.get("/checkinsGrid", function (req, res) {
+  console.log("/checkinsGrid");
+  res.render("checkinsGrid");
+})
 module.exports = router;

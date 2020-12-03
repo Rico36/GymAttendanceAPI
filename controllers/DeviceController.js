@@ -66,7 +66,6 @@ let DeviceController = {
         }
         else {
             debug("sending all...");
-            allDevices = await req.app.get('Device').find({}, usersProjection);
             await req.app.get('Device')
                 .find({}, usersProjection)
                 .then(allDevices => {
