@@ -1,7 +1,7 @@
 #!/bin/bash
 # STOP the API web server 
 cd /opt/FitnessCenterSrv
-sudo service smbd stop
+#sudo service smbd stop
 sudo pm2 stop app.js
 
 ## Download all code changes from GIT and ignore/discard any local changes (if any)
@@ -17,5 +17,5 @@ sudo pm2 startup systemd
 #sudo pm2 start app.js --watch --ignore-watch="[BAK, logs, MembersData]" --name="Fitness Center App"
 sudo pm2 start pm2.start.config.js
 #
-sudo systemctl restart smbd nmbd
+#sudo systemctl restart smbd nmbd
 
