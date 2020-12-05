@@ -221,8 +221,24 @@ echo "--------------------------------------------------------------------------
 # > use Membership
 ## list the current users
 # > db.users.find()
+# > db.users.find({"local.email"})
+## List users that are pending activation
+# > db.users.find({"local.active": false})
 #
 # Change the active flag for a specific user:
 #
-# > db.users.update({"email": "jrf1@cdc.gov"}, {$set: { "active": true }});
+# > db.users.update({"local.email": "jrf1@cdc.gov"}, {$set: { "local.active": true }});
+#
+# Change the active flag for ALL users:
+#
+# > db.users.update({}, {$set: { "local.active": true }});
+#
+##  MEMBERS collection
+##  display members
+#   > db.members.find()
+#
+##  Update all active members to "inactive"
+#   > db.members.update({"active": true }, {$set: { "active": false }}, {"multi": true});
+#
+#   > db.checkins.find()
 #
