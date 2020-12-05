@@ -240,5 +240,8 @@ echo "--------------------------------------------------------------------------
 ##  Update all active members to "inactive"
 #   > db.members.update({"active": true }, {$set: { "active": false }}, {"multi": true});
 #
+##  Add the field "inactive" to all members which currenlty do not have that field. Also, set it to false as default.
+#   > db.members.update({'active': {$exists : false}}, {$set: {'active': false}}, {multi: true})
+#
 #   > db.checkins.find()
 #
