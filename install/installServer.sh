@@ -213,3 +213,16 @@ echo "--------------------------------------------------------------------------
 echo "NOTE: make sure valid certificates (.cert + .key) files are found in the /sec/cert folder"
 echo "Enter cert name changes in /etc/nginx/snippets/self-signed.conf"
 echo "----------------------------------------------------------------------------------------"
+#
+#
+#  ALLOW ACCESS:
+#   use Membership
+## switched to db Membership
+# > use Membership
+## list the current users
+# > db.users.find()
+#
+# Change the active flag for a specific user:
+#
+# > db.users.update({"email": "jrf1@cdc.gov"}, {$set: { "active": true }});
+#
