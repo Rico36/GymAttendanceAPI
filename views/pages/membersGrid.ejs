@@ -11,12 +11,12 @@
     <!-- The main CSS file -->
     <link href="css/style.css" rel="stylesheet" />
 
-    <%- include('./partials/head'); %>
+    <%- include('../partials/head'); %>
 </head>
 <body class="container">
 
 <header>
-    <%- include('./partials/header'); %>
+    <%- include('../partials/header'); %>
 </header>
 
 <main>
@@ -32,12 +32,14 @@
                 sorting: true,
                 paging: true,
                 autoload: true,
+                pagerFormat: "Pages: {first} {prev} {pages} {next} {last} &nbsp;&nbsp; {pageIndex} of {pageCount} / Total rows: {itemCount}",
                 deleteConfirm: "Do you really want to delete this member?",                
                 //pageLoading: true,
                     beforeSubmit: function (postData) {
-                        postData.deviceName = postData.deviceName.toUpperCase();
-                        postData.deviceToken = postData.deviceToken.toUpperCase();
-                        postData.rm = postData.rm.toUpperCase();
+                        postData.userid = postData.userid.toUpperCase();
+                        postData.hhsid = postData.hhsid.toUpperCase();
+                        postData.Firstname = postData.Firstname.toUpperCase();
+                        postData.Lastname = postData.Lastname.toUpperCase();
                         return [true, ''];
                     },
             
@@ -45,7 +47,7 @@
                     loadData: function(filter) {
                         return $.ajax({
                                 type: "GET",
-                                url: "/db/devices",
+                                url: "/db/members",
                                 data: filter,
                               //  contentType: "application/json; charset=utf-8",
                                 dataType: "json"
@@ -56,7 +58,7 @@
                 insertItem: function(item) {
                     return $.ajax({
                         type: "POST",
-                        url: "/db/devices/create",
+                        url: "/db/members/create",
                         data: item,
                         dataType: "json"
                     });
@@ -64,7 +66,7 @@
                 updateItem: function(item) {
                     return $.ajax({
                         type: "PUT",
-                        url: "/db/devices/update",
+                        url: "/db/members/update",
                         data: item,
                         dataType: "json"
                     });
@@ -74,13 +76,13 @@
                 deleteItem: function(item) {
                     return $.ajax({
                         type: "DELETE",
-                        url: "/db/devices/delete",
+                        url: "/db/members/delete",
                         data: item,
                         dataType: "json"
                     });
                 }
             },
-                pageSize: 12,
+                pageSize: 17,
                 pageButtonCount: 8,
                 pageIndex: 1,
             
@@ -91,9 +93,10 @@
                 loadShading: true,
          
                 fields: [
-                    { name: "deviceName", type: "text", editing: true, width:150, validate: "required" },
-                    { name: "deviceToken", type: "text", editing: false, width: 360, validate: "required", filtering: false },
-                    { name: "rm", type: "text", width: 180, validate: "required", filtering: false },
+                    { name: "userid", type: "text", editing: false, width: 125, validate: "required" },
+                    { name: "hhsid", type: "text", width: 125, validate: "required", filtering: false },
+                    { name: "Firstname", type: "text", width: 220, validate: "required", filtering: false },
+                    { name: "Lastname", type: "text", width: 220, validate: "required", filtering: false },
                     { name: "active", type: "checkbox", title: "Cleared", filtering: false },
                     { type: "control" }
                 ],
@@ -102,7 +105,7 @@
     </div>
 </main>
 <footer>
-    <%- include('./partials/footer'); %>
+    <%- include('../partials/footer'); %>
 </footer>
 
 </body>

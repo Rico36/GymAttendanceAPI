@@ -17,15 +17,18 @@
 //require("dotenv").config();
 var os = require("os");
 const express = require('express');
-var app = express();
-env = process.env.NODE_ENV || 'development';
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const flash = require('connect-flash'); 
 
-// Determine port to listen on
+var app = express();
+
+var env = process.env.NODE_ENV || 'development';
 var httpPort = (process.env.PORT || process.env.VCAP_APP_PORT || 8300);
 var path = require('path');
 var createError = require('http-errors');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+//var logger = require('morgan');
 var cors = require('cors');
 var fs = require('fs');
 var http = require('http');
@@ -57,8 +60,28 @@ mongoose
   var Checkin = require("./db/models/Checkin");
   var Device = require("./db/models/Device");
   var Room = require("./db/models/Room");
-  // Nexrt line is a built-in middleware function in Express. It parses incoming requests 
-  // with JSON payloads and is based on body-parser. This will allow our servers to allow incoming .json file format.
+
+// Passport configuration 
+require('./config/passport')(passport); 
+
+const expressSession = require('express-session')({
+  secret: 'lashormigasenfranciacaminanconelegancia',
+  resave: false,
+  saveUninitialized: false
+});
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(expressSession); 
+    // Init passport authentication 
+    app.use(passport.initialize()); 
+    // persistent login sessions 
+    app.use(passport.session()); 
+    // flash messages 
+    app.use(flash()); 
+
+
+// Next line is a built-in middleware function in Express. It parses incoming requests 
+// with JSON payloads and is based on body-parser. This will allow our servers to allow incoming .json file format.
   app.use(express.json());
 
   var indexRouter = require('./routes/index');
@@ -68,8 +91,9 @@ mongoose
   app.enable('trust proxy');
   // view engine setup
   app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, 'views'));
-  app.set('css', path.join(__dirname+"/public", 'css'));
+  //app.set('views', path.join(__dirname, 'views'));
+  app.set('views', path.join(__dirname, 'views/pages')); 
+  //app.set('css', path.join(__dirname+"/public", 'css'));
   //app.use(express.static(path.join(__dirname, 'public')))
   //set the path of the jquery file to be used from the node_module jquery package  
   app.use('/jquery',express.static(path.join(__dirname+'/node_modules/jquery/dist/')));  
@@ -85,7 +109,7 @@ mongoose
   app.use('/api', apiRouter);  // API 
   app.use('/db', dbRouter); // CRUD functions and Reports
 
-  app.use(logger('dev'));
+  //app.use(logger('dev'));
 
   
 // Make our db accessible to our routes
@@ -94,7 +118,6 @@ mongoose
   app.set('Checkin',Checkin); 
   app.set('Device',Device); 
   app.set('Room',Room); 
-  
 
 // ----------------------------------- 
 // SET FILE UPLOADS naming convention 
@@ -155,5 +178,11 @@ var httpServer = http.createServer(app);
 const server = httpServer.listen(httpPort, () => {
   console.log(`Server is running on host ${os.hostname()} @ http://127.0.0.1:${httpPort}`);
 });
+
+
+/* REGISTER SOME USERS */
+try {
+    //UserDetails.register({username:'jrf1', active: false}, 'jrf1')
+} catch (err) { console.log("Note: app.js is attempting to register one or more users but got: "+err.message)}
 
 module.exports = app;

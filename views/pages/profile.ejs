@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<header>
+    <%- include('../partials/header'); %>
+    <div class="message-box">
+        <h4>Welcome user: <%= user.local.name %></h4>
+    </div>
+</header>
+
+<main>
+    <div class="classic"> 
+           <div class="datails" style ="align-items: center; display: flex; justify-content: center;"> 
+          <div class="card text-xs-center"  style=" border: 1px solid;padding:3px;width:350px; height:480px; align-items: center; justify-content: center;"> 
+                 <br> 
+            <img class="card-img-top" src="<%= avatar %>" alt="Card image cap"> 
+            <div class="card-block"> 
+                <h4 class="card-title">User Details</h4> 
+                <p class="card-text"> 
+                    <strong>Name</strong>: <%= user.local.name %><br> 
+                    <strong>Email</strong>: <%= user.local.email %> 
+                </p> 
+                <a href="/logout" class="btn btn-default">Logout</a> 
+            </div> 
+        </div> 
+        </div> 
+    </div> 
+</main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+        <% include ../partials/javascript %> 
+    </footer>
+
+</body>
+</html>
