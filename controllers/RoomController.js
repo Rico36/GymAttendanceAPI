@@ -33,12 +33,20 @@ let RoomController = {
     },
     all: async (req, res) => {
         var rm;
+        var active;
+        var allRooms=[];
         if( "rm" in req.query )  rm = req.query.rm; 
+        if( "active" in req.query )  active = req.query.active; 
         logger.info("RoomController.all("+rm+")");
+        if(active) {
+            // use regEx to make the search non-case sensitive.
+            allRooms = await req.app.get('Room').find({active:true}, usersProjection);
+            debug("RoomeController response= "+ JSON.stringify(allRooms) );
+        } else
         if (rm) {
             // use regEx to make the search non-case sensitive.
-            allDevices = await req.app.get('Room').find({rm: { $regex : new RegExp(rm, "i")}}, usersProjection);
-            debug("RoomeController response= "+ JSON.stringify(allDevices) );
+            allRooms = await req.app.get('Room').find({rm: { $regex : new RegExp(rm, "i")}}, usersProjection);
+            debug("RoomeController response= "+ JSON.stringify(allRooms) );
         }
         else
            allRooms = await req.app.get('Room').find({}, usersProjection);

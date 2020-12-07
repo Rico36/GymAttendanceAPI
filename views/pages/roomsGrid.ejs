@@ -32,7 +32,7 @@
                 sorting: true,
                 paging: true,
                 autoload: true,
-                deleteConfirm: "Do you really want to delete this member?",                
+                deleteConfirm: "Note:  Deleting rooms is not recommended. Room will be removed from all devices which may affect on-going check-in trxs. Do you really want to delete this room?",                
                 //pageLoading: true,
                     beforeSubmit: function (postData) {
                         postData.rm = postData.rm.toUpperCase();
@@ -91,7 +91,7 @@
                 fields: [
                     { name: "rm", type: "text", editing: false, width:300, validate: "required" },
                     { name: "active", type: "checkbox", title: "Active", filtering: false },
-                    { type: "control" }
+                    { type: "control" }   // , deleteButton: false
                 ],
             });
         </script>
