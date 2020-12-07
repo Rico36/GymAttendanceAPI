@@ -4,39 +4,39 @@ const express = require('express'),
     passport = require('passport'),
     connectEnsureLogin = require('connect-ensure-login'),
     flash = require('connect-flash'),
-    gravatar = require('gravatar');  
-
+    gravatar = require('gravatar'),  
+    debug = require('debug')('users');
 
 
 // Menu options
 //
-router.get("/dropZone", function (req, res) {
-  console.log("GET dropZone!!!");
-  res.render("dropZone");
-})
+// router.get("/dropZone", function (req, res) {
+//   debug("GET dropZone!!!");
+//   res.render("dropZone");
+// })
 
-router.get("/reports", function (req, res) {
-  res.render("reports");
-})
+// router.get("/reports", function (req, res) {
+//   res.render("reports");
+// })
 
-router.get("/membersGrid", function (req, res) {
-  console.log("/membersGrid");
+router.get("/membersGrid",  connectEnsureLogin.ensureLoggedIn(), function (req, res) {
+  debug("/membersGrid");
   res.render("membersGrid");
 })
 
-router.get("/devicesGrid", function (req, res) {
-  console.log("/devicesGrid");
+router.get("/devicesGrid", connectEnsureLogin.ensureLoggedIn(), function (req, res) {
+  debug("/devicesGrid");
   res.render("devicesGrid");
 })
 
-router.get("/roomsGrid", function (req, res) {
-  console.log("/roomsGrid");
+router.get("/roomsGrid", connectEnsureLogin.ensureLoggedIn(), function (req, res) {
+  debug("/roomsGrid");
   res.render("roomsGrid");
 })
 
 
-router.get("/checkinsGrid", function (req, res) {
-  console.log("/checkinsGrid");
+router.get("/checkinsGrid",  connectEnsureLogin.ensureLoggedIn(), function (req, res) {
+  debug("/checkinsGrid");
   res.render("checkinsGrid");
 })
 
