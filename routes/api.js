@@ -329,13 +329,13 @@ router.get("/checkinsCount",  function(req, res){
          }
          else {
             debug ("authDevice()  Access denied");
-            return res.status(500).json({ message: "Access denied." });
+            return res.status(403).json({ message: "Access denied." });
          }
          next();
             
    } catch (err) {
             debug("authDevice() err: Unable to authorize. "+ err.message);
-            return res.status(500).json({ message: "Access denied." });
+            return res.status(403).json({ message: "Access denied." });
       }
 };
 
