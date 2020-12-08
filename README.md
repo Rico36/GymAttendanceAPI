@@ -31,3 +31,14 @@ CDC fitness center attendance/checkin API - server
 //
 // How to Setup Node.js with MongoDB on Ubuntu
 //  https://tecadmin.net/setup-nodejs-with-mongodb-on-ubuntu/
+//
+//
+How to enable native client applications to interact with proxy applications
+https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/application-proxy-configure-native-client-application
+
+REACT NATIVE MSAL
+https://www.npmjs.com/package/react-native-msal
+
+A web API that call a web API
+https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-api-call-api-app-configuration?tabs=aspnetcore
+
