@@ -1,4 +1,20 @@
-      // load passport module 
+      var passwordValidator = require('password-validator');
+      // Create a schema
+      var schema = new passwordValidator();
+      
+      // Add properties to it
+      schema
+      .is().min(8)                                    // Minimum length 8
+      .is().max(16)                                  // Maximum length 16
+      .has().uppercase()                              // Must have uppercase letters
+      .has().lowercase()                              // Must have lowercase letters
+      .has().digits(1)                                // Must have at least 1 digits
+      .has().symbols(1)                               // Must have at least 1 symbol
+      .has().not().spaces()                           // Should not have spaces
+      .is().not().oneOf(['Passw0rd', 'Password123']); // Blacklist these values
+
+
+     // load passport module 
       var LocalStrategy    = require('passport-local').Strategy; 
       // load up the user model 
       var User = require('../db/models/users'); 
@@ -71,10 +87,20 @@
                   // if errors 
                   if (err) 
                     return done(err); 
+
                   // check email 
+                  var domain = email.indexOf('@cdc.gov');
+                  if (domain<1) {
+                    return done(null, false, req.flash('signupMessage',
+                     'Sorry, that email address is not allowed.')); 
+                   } 
+                   if (!schema.validate(password)) {
+                    return done(null, false, req.flash('signupMessage',
+                     'that password is invalid. (8 to 16 characters, at least one upper case, a lower case, a number, a symbol, and no spaces.')); 
+                  }
                   if (user) { 
                     return done(null, false, req.flash('signupMessage',
-                     'Wohh! the email is already taken.')); 
+                     'the email address already exist!')); 
                   }
                   else { 
                     // create the user 
@@ -90,7 +116,7 @@
                           if (err) 
                             throw err; 
                          
-                         return done(null, false, req.flash('signupMessage', 'Thanks! Your access is now pending quick approval from the administrator. Please login back later.'));                           
+                         return done(null, false, req.flash('signupMessage', 'the administrator must still approve your signup. Please login back later.'));                           
                           //return done(null, newUser); 
                     }); 
                    } 

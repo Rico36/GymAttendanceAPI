@@ -55,7 +55,7 @@ span.psw {
 
 /* The Modal (background) */
 .modal {
-    display: block;
+    display: none;
     margin-left: auto;
     margin-right: auto ;
      position: relative;  /* Stay in place */
@@ -127,9 +127,14 @@ span.psw {
 <div class="classic"> 
         <% if (message.length > 0) { %>
            <div class="alert alert-warning" role="alert" style=" margin-left: auto; margin-right: auto; text-align: center;">
-             <strong>Warning!</strong> <%= message %>.
-           </div>
+            <% if ( message =="the administrator must still approve your signup. Please login back later." ) { %>
+              <strong>Thanks!</strong> however, <%= message %>
+              <% } else{ %>  
+                <strong>Warning!</strong> <%= message %>.
+                <% } %>
+              </div>
          <% } %>
+
 <div id="id01" class="modal" >
   
   <form class="modal-content animate"  action="/signup" method="post">
@@ -156,14 +161,27 @@ span.psw {
   </form>
 </div>
 </div>
+<% if ( message =="the administrator must still approve your signup. Please login back later." ) { %>
+  <script>document.getElementById('id01').style.display='none'; </script>
+  <% } else{ %>  
+  <script>document.getElementById('id01').style.display='block'; </script>
+<% } %>
 <script>
-// Get the modal
-var modal = document.getElementById('id01');
-
-// When the user clicks anywhere outside of the modal, close it
-window.onload = function(event) {
-    document.getElementById('id01').style.display='block';
-}
+$(document).ready(function(){
+   $(document).click(function(event) {
+      if (event.originalEvent === undefined) {
+          alert('not human')
+      } 
+  });
+  $(document).keypress(function(event) {
+  
+      if (event.originalEvent === undefined) {
+          alert('not human')
+      } 
+  });
+     $(document).click();
+     $(document).keypress();
+  });
 </script>
 
 </main>
