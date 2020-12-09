@@ -11,9 +11,9 @@ var userSchema = mongoose.Schema({
         password: String, 
         createDate: { type: Date, default : Date.now },
         active: { type : Boolean, default: false}
-    } 
- 
-}); 
+    }},
+    { collection: "users"}
+); 
  
 // Encrypt Password 
 userSchema.methods.generateHash = function(password) { 
@@ -26,4 +26,5 @@ userSchema.methods.validPassword = function(password) {
 }; 
  
 // create the model for users and expose it to our app 
-module.exports = mongoose.model('User', userSchema); 
+const User = mongoose.model("User", userSchema);
+module.exports = User;

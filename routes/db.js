@@ -4,7 +4,8 @@ const express = require('express'),
     MemberControls = require("../controllers/MemberController.js"),
     DeviceControls = require("../controllers/DeviceController.js"),
     RoomControls = require("../controllers/RoomController.js"),
-    CheckinControls = require("../controllers/CheckinController.js");
+    CheckinControls = require("../controllers/CheckinController.js"),
+    UserControls = require("../controllers/UserController.js");
 
 // Get All 
 router.get("/", function (req, res) {
@@ -38,6 +39,14 @@ router.get("/devices", DeviceControls.all);
 router.get("/devices/:rm", DeviceControls.find);
 router.get("/devices/activate/:rm", DeviceControls.activate);
 router.get("/devices/deactivate/:rm", DeviceControls.deactivate);
+
+router.post("/users/create", UserControls.create);
+router.put("/users/update", UserControls.update);
+router.delete("/users/delete", UserControls.delete);
+router.get("/users", UserControls.all);
+router.get("/users/:email", UserControls.find);
+router.get("/users/activate/:email", UserControls.activate);
+router.get("/users/deactivate/:email", UserControls.deactivate);
 
 router.get("/reports").post((req, res, next) => {
   var startDate = moment(req.body.currentDate)

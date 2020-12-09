@@ -40,6 +40,10 @@ router.get("/checkinsGrid",  connectEnsureLogin.ensureLoggedIn(), function (req,
   res.render("checkinsGrid");
 })
 
+router.get("/usersGrid",  connectEnsureLogin.ensureLoggedIn(), function (req, res) {
+  debug("/usersGrid");
+  res.render("usersGrid");
+})
 
 
 /* PASSPORT SETUP  */

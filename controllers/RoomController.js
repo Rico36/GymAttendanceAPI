@@ -41,12 +41,12 @@ let RoomController = {
         if(active) {
             // use regEx to make the search non-case sensitive.
             allRooms = await req.app.get('Room').find({active:true}, usersProjection);
-            debug("RoomeController response= "+ JSON.stringify(allRooms) );
+           // debug("RoomeController response= "+ JSON.stringify(allRooms) );
         } else
         if (rm) {
             // use regEx to make the search non-case sensitive.
             allRooms = await req.app.get('Room').find({rm: { $regex : new RegExp(rm, "i")}}, usersProjection);
-            debug("RoomeController response= "+ JSON.stringify(allRooms) );
+            //debug("RoomeController response= "+ JSON.stringify(allRooms) );
         }
         else
            allRooms = await req.app.get('Room').find({}, usersProjection);
@@ -82,7 +82,6 @@ let RoomController = {
 
         try {
             let Room = req.app.get('Room');
-            debug("RoomController.create(cont.)");
             await Room.create(data)
                 .then(room => {
                     res.json(room);
@@ -103,7 +102,7 @@ let RoomController = {
 
         rm = data.rm;
         logger.info("RoomController.update("+rm+")");
-        debug("MemberController.update("+rm+")");
+        debug("RoomController.update("+rm+")");
 
         try {
             let Room = req.app.get('Room');
