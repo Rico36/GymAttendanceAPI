@@ -41,8 +41,8 @@ button:hover {
 }
 
 img.avatar {
-  width: 40%;
-  border-radius: 50%;
+  width: 35%;
+  border-radius: 30%;
 }
 
 .container {
@@ -63,7 +63,7 @@ span.psw {
   position: relative;  /* Stay in place */
   z-index: 1; /* Sit on top */
   width: 500px; /* Full width */ 
-  height: 590px; /* Full height */
+  height: 580px; /* Full height */
   overflow: clip; /* Enable scroll if needed */
   background-color: white; /* Fallback color */
   background-color: white; /* Black w/ opacity */
@@ -138,7 +138,7 @@ span.psw {
   <form class="modal-content animate"  action="/login" method="post">
     <div class="imgcontainer">
       <!-- <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span> -->
-      <img src="images/img_avatar2.png" alt="Avatar" class="avatar">
+      <img src="images/splash.png" alt="Avatar" class="avatar">
     </div>
 
     <div class="container">
@@ -177,6 +177,7 @@ window.onload = function(event) {
 
 <footer>
     <%- include('../partials/footer'); %>
+    <% include ../partials/javascript %> 
 </footer>
 
 </body>
