@@ -220,10 +220,10 @@ echo "--------------------------------------------------------------------------
 ## switched to db Membership
 # > use Membership
 ## list the current users
-# > db.users.find()
-# > db.users.find({"local.email"})
+# > db.users.find().pretty()
+# 
 ## List users that are pending activation
-# > db.users.find({"local.active": false})
+# > db.users.find({"local.active": false}).pretty()
 #
 # Change the active flag for a specific user:
 #
