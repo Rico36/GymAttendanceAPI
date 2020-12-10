@@ -59,7 +59,7 @@
  
                  if (!user.validPassword(password)) 
                   return done(null, false, req.flash('loginMessage',
-                  'Wohh! Wrong password.')); 
+                  'Ops! Wrong password.')); 
                 // everything ok, get user 
                 else 
                   return done(null, user); 

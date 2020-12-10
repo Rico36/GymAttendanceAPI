@@ -7,12 +7,6 @@
 //  Note:  see README.md file for install and setup instructions
 // -----------------------------------------------------------------------
 // 
-// When things goe bad with GIT, just restore from GIT and discard all local uncommited changes
-// git reset --hard origin/master
-// git pull origin master
-// NOTE: using git reset --hard will discard any local uncommitted changes,
-//
-//
 //
 //require("dotenv").config();
 var os = require("os");
@@ -69,8 +63,14 @@ const expressSession = require('express-session')({
   resave: false,
   saveUninitialized: false
 });
-//app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({ extended: true }));
+
+// Next lines are built-in middleware functions in Express. It parses incoming requests, handle session, etc. 
+// This will also allow our servers to process incoming .json message formats.
+
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    app.use(cookieParser());
+
     app.use(expressSession); 
     // Init passport authentication 
     app.use(passport.initialize()); 
@@ -79,10 +79,6 @@ const expressSession = require('express-session')({
     // flash messages 
     app.use(flash()); 
 
-
-// Next line is a built-in middleware function in Express. It parses incoming requests 
-// with JSON payloads and is based on body-parser. This will allow our servers to allow incoming .json file format.
-  app.use(express.json());
 
   var indexRouter = require('./routes/index');
   var apiRouter = require('./routes/api');
@@ -101,17 +97,11 @@ const expressSession = require('express-session')({
   //set static folder(public) path  
   app.use(express.static(path.join(__dirname+'/public')));  
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: false }));
-  app.use(cookieParser());
-  
+  // Setup our routes
   app.use('/', indexRouter); 
   app.use('/api', apiRouter);  // API 
   app.use('/db', dbRouter); // CRUD functions and Reports
 
-  //app.use(logger('dev'));
-
-  
 // Make our db accessible to our routes
   app.set('db',db); 
   app.set('Member',Member); 
