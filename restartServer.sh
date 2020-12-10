@@ -3,6 +3,7 @@
 cd /opt/FitnessCenterSrv
 #sudo service smbd stop
 sudo pm2 stop app.js
+sudo pm2 delete all
 
 ## Download all code changes from GIT and ignore/discard any local changes (if any)
 # sudo git fetch --all

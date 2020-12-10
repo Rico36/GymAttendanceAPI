@@ -6,9 +6,9 @@
 const pm2Config = {
     apps: [
       {
-        name: 'Fitness Center API',
+        name: 'Fitness Center API (OSSAM)',
         script: './app.js',
-        exec_mode: 'cluster_mode',
+        exec_mode: 'cluster',
         instances: 1,
       },
     ],
