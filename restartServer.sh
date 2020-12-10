@@ -11,12 +11,14 @@ sudo pm2 delete all
 sudo chmod +x restartServer.sh
 sudo chmod +x stopServer.sh
 sudo chmod +x serverStatus.sh
-#run the web server app as a background process
-#sudo nginx -t
+
+#sudo systemctl restart smbd nmbds
+## Restart NGINX reverse-proxy
 sudo systemctl reload nginx
-sudo pm2 startup systemd
+## Restart PM2 but change the excutable user to www-data
+sudo pm2 startup systemd  -u www-data --hp /home/www-data
 #sudo pm2 start app.js --watch --ignore-watch="[BAK, logs, MembersData]" --name="Fitness Center App"
 sudo pm2 start pm2.start.config.js
-#
-#sudo systemctl restart smbd nmbd
+sudo pm2 save
+
 
