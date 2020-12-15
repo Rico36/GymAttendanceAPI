@@ -146,16 +146,18 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
        }
  });
 
-// '''''''''''''''''''''''''''''''''''''''
-// Receives deviceTokens from IOS devices  
-// Returns approval plus other device config data.
-// '''''''''''''''''''''''''''''''''''''''
+// ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+// Receives deviceTokens from IOS devices for identification. 
+// Returns approval plus other device config data (i.e., room, etc).
+// NOTE: This gets called at each IOS device's start-up and also
+//        when the user changes the room info inside the IOS device.   
+// '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 router.post("/deviceReg", async (request,res) => {
    var logger = log4js.getLogger('error');
    try {
-        await reloadDevices(request)
+        await reloadDevices(request)   // re-load the list of authorized devices from db
            .then( deviceList => {
-                  devices = deviceList;  // <=== re-load the list of devices to in-mem buffer       
+                  devices = deviceList;  // <=== store the list of devices to memory buffer       
 
                   debug (`Authorizing device ${request.header('DeviceToken')}...`); // + JSON.stringify(request.body));  
                   var data = JSON.parse(JSON.stringify(request.body));
@@ -163,30 +165,39 @@ router.post("/deviceReg", async (request,res) => {
                   var approvedDevice;
                   debug( "   Device name: " + data.deviceName);
                   debug("In-mem Devices: "+devices.length); // JSON.stringify(devices));
-                  //debug("Device info: "+JSON.stringify(data));
-                  if( devices.length >0) { // check in the in-mem buffer is empty
-                     // iterate through the in-memory JSON records to find the device
+                  //logger.info("Authorizing device: "+JSON.stringify(data));
+                  if( devices.length >0) { // check if the in-mem buffer is empty
+                     // iterate through the in-memory JSON records to find the device's token
                      device = devices.find(_device => _device.deviceToken === data.deviceToken);
                      debug("In-mem found: "+JSON.stringify(device)); 
-                     if( (device) && ("active" in device) && device.active) {
-                        approvedDevice = device;
-                        //debug( "approvedDevice: " + JSON.stringify(approvedDevice));
+                     if( (device) && ("active" in device) && device.active) {  // if device is "activated", then ...
+                        if( "rm" in data)  // if the device sent a new room or location info, note that room.
+                           if( (data.rm != device.rm) && (data.rm.trim().length > 1)) // room info is different?
+                           {    console.log("Changed room to: "+data.rm);
+                                device.rm = data.rm; // note the new room name 
+                                request.ommit=true;
+                                DeviceControls.update(request, res);  // update the db
+
+                           }
+                        // sent approval token back to the device as confirmation
+                        approvedDevice = { "deviceToken": device.deviceToken, "rm": device.rm , "active": device.active};
+                        logger.info( "approvedDevice: " + JSON.stringify(approvedDevice));
                         res.status(200).json(approvedDevice);
                      }
-                     else { 
+                     else {  //  The device token was not found or is not "active" ... 
                        json = { message: `Device ${data.deviceToken} not registered.`};
                        res.status(404).send(json);
-                       debug( `Unregistered: ${data.deviceName}, deviceToken: ${data.deviceToken} `);      
-                       logger.info(`Unregistered: ${data.deviceName}, deviceToken: ${data.deviceToken} `);    
+                       debug( `Unregistered: ${data.deviceName}, deviceToken: ${data.deviceToken} `);    
+                       logger.info("Unregistered device: "+JSON.stringify(data));  
                        if(!device) {
+                           // Add/update the unauthorized device token into the database as "inactive". 
+                           // This should allow an operator/admin to easily find new devices and optionally activate/approve them.
                            request.ommit=true;
-                           // Write the new device token into the database as "inactive" device. 
-                           // This should allow an operator to see the device at the database and optionally activate access.
                            DeviceControls.update(request, res);
                         }
                      }
                   }
-                  else { // no devices in the list.  Add this one as inactive   
+                  else { // no devices in the list.  Add the caller device into the database as "inactive"   
                      json = { message: `Device ${data.deviceToken} not registered.`};
                      res.status(404).send(json);
                      request.ommit=true;             

@@ -244,4 +244,5 @@ echo "--------------------------------------------------------------------------
 #   > db.members.update({'active': {$exists : false}}, {$set: {'active': false}}, {multi: true})
 #
 #   > db.checkins.find()
+#   > db.checkins.remove({})   // delets all rows !!
 #

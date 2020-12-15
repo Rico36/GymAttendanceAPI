@@ -118,7 +118,7 @@ let DeviceController = {
     },
     update: async (req, res) => {
         const data = req.body || {};
-        var deviceToken= req.params.deviceToken;  // if user passed the deviceToken in the ORL, use that
+        var deviceToken= req.params.deviceToken;  // if user passed the deviceToken in the URL, use that
         let ommit=false; // default
 
         //console.log("update() data: "+JSON.stringify(data));
