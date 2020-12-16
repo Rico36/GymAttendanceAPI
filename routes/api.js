@@ -169,6 +169,8 @@ router.post("/deviceReg", async (request,res) => {
                      device = devices.find(_device => _device.deviceToken === data.deviceToken);
                      if( (device) && ("active" in device) && device.active) {  // if device is "activated", then ...
                         if( "rm" in data)  // if the device sent a new room or location info, note that room.
+                        {
+                           debug( "   data.rm: " + data.rm+", device.rm: "+device.rm);
                            if( (data.rm != device.rm) && (data.rm.trim().length > 1)) // room info is different?
                            {    debug("Changed device's room to: "+data.rm);
                                 device.rm = data.rm; // note the new room name 
@@ -177,6 +179,7 @@ router.post("/deviceReg", async (request,res) => {
                                 logger.info("Changed device's room to: "+data.rm); 
 
                            }
+                        }
                         // sent approval token back to the device as confirmation
                         approvedDevice = { "deviceToken": device.deviceToken, "rm": device.rm , "active": device.active};
                         logger.info( "approvedDevice: " + JSON.stringify(approvedDevice));
