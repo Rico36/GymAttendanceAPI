@@ -19,7 +19,7 @@ var MemberControls = require("../controllers/MemberController.js");
 // Global variables
 // My config file
 //
-//require("dotenv").config();
+require("dotenv").config();
 const config = require('../config.json')
 // Request path module for relative path
 const path = require('path')
@@ -42,6 +42,8 @@ log4js.configure({
      default: { appenders: [ 'multi' ], level: 'debug' }
    }
  });
+ const logger = log4js.getLogger('info');
+
 
 // '''''''''''''''''''''''''''''''''''''''
 // GET request for the entire list of members @ http://..../api/
@@ -61,8 +63,7 @@ router.get("/", authDevice, async (req, res) => {
 
    req.app.get('Member').find({}, usersProjection, function (err, users) {
       if (err) {     
-         const logger = log4js.getLogger('error');
-         logger.info("Getting /api caught an error: "+err.message);
+         logger.error("Getting /api caught an error: "+err.message);
          console.log('caught', err.message);
          res.status(500).json({message: err.message})
       } else {
@@ -93,8 +94,7 @@ router.get("/", authDevice, async (req, res) => {
     try {
      const updatedMember = await req.app.get('Member').save(res.member);
      } catch (err) {
-       const logger = log4js.getLogger('error');
-       logger.info(`Adding/updating member ${req.params.id} caught an error: `+err.message);
+       logger.error(`Adding/updating member ${req.params.id} caught an error: `+err.message);
        res.status(400).json({ message: err.message });
       }
  });
@@ -111,8 +111,7 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
   try {  console.log("Validating hhsid: "+itemId);
          req.app.get('Member').find({hhsid: { $regex : new RegExp(itemId, "i") }}, usersProjection, function (err, member) {
             if (err) {     
-               const logger = log4js.getLogger('error');
-               logger.info("Getting /users caught an error: "+err.message);
+                logger.error("Getting /users caught an error: "+err.message);
                console.log('caught', err.message);
                res.status(500).json({message: err.message})
             } else {
@@ -133,8 +132,7 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
   try {  console.log("Validating userid: "+itemId);
       req.app.get('Member').find({userid: { $regex : new RegExp(itemId, "i") }}, usersProjection, function (err, member) {
             if (err) {     
-               const logger = log4js.getLogger('error');
-               logger.info("Getting /users caught an error: "+err.message);
+               logger.error("Getting /users caught an error: "+err.message);
                console.log('caught', err.message);
                res.status(500).json({message: err.message})
             } else {
@@ -153,38 +151,40 @@ router.get("/hhsid/:hhsid", authDevice, async (req, res) => {
 //        when the user changes the room info inside the IOS device.   
 // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 router.post("/deviceReg", async (request,res) => {
-   var logger = log4js.getLogger('error');
    try {
         await reloadDevices(request)   // re-load the list of authorized devices from db
            .then( deviceList => {
                   devices = deviceList;  // <=== store the list of devices to memory buffer       
 
-                  debug (`Authorizing device ${request.header('DeviceToken')}...`); // + JSON.stringify(request.body));  
-                  var data = JSON.parse(JSON.stringify(request.body));
+                  console.log (`Authorizing device ${request.header('DeviceToken')}...`); 
+                  var data = request.body;
                   var device;
                   var approvedDevice;
-                  debug( "   Device name: " + data.deviceName);
-                  debug("In-mem Devices: "+devices.length); // JSON.stringify(devices));
-                  //logger.info("Authorizing device: "+JSON.stringify(data));
+                  debug( "   Device name: " + data.deviceName+", rm: "+data.rm);
+                  debug ("   request.body: "+ JSON.stringify(request.body));
+                  logger.info(`Authorizing device ${request.header('DeviceToken')}...`); 
+                  logger.info( "Device name: " + data.deviceName+", rm: "+data.rm);
                   if( devices.length >0) { // check if the in-mem buffer is empty
                      // iterate through the in-memory JSON records to find the device's token
                      device = devices.find(_device => _device.deviceToken === data.deviceToken);
-                     debug("In-mem found: "+JSON.stringify(device)); 
                      if( (device) && ("active" in device) && device.active) {  // if device is "activated", then ...
                         if( "rm" in data)  // if the device sent a new room or location info, note that room.
                            if( (data.rm != device.rm) && (data.rm.trim().length > 1)) // room info is different?
-                           {    console.log("Changed room to: "+data.rm);
+                           {    debug("Changed device's room to: "+data.rm);
                                 device.rm = data.rm; // note the new room name 
                                 request.ommit=true;
                                 DeviceControls.update(request, res);  // update the db
+                                logger.info("Changed device's room to: "+data.rm); 
 
                            }
                         // sent approval token back to the device as confirmation
                         approvedDevice = { "deviceToken": device.deviceToken, "rm": device.rm , "active": device.active};
                         logger.info( "approvedDevice: " + JSON.stringify(approvedDevice));
+                        debug( "approvedDevice: " + JSON.stringify(approvedDevice));
                         res.status(200).json(approvedDevice);
                      }
                      else {  //  The device token was not found or is not "active" ... 
+                       debug("In-mem found: "+JSON.stringify(device)); 
                        json = { message: `Device ${data.deviceToken} not registered.`};
                        res.status(404).send(json);
                        debug( `Unregistered: ${data.deviceName}, deviceToken: ${data.deviceToken} `);    
@@ -194,15 +194,19 @@ router.post("/deviceReg", async (request,res) => {
                            // This should allow an operator/admin to easily find new devices and optionally activate/approve them.
                            request.ommit=true;
                            DeviceControls.update(request, res);
+                           logger.info("Device saved to db."); 
                         }
                      }
                   }
-                  else { // no devices in the list.  Add the caller device into the database as "inactive"   
+                  else { // no devices in the list.  Add the caller device into the database as "inactive"  
+                     if(devices) 
+                        debug("In-mem Devices: "+devices.length); // JSON.stringify(devices));
                      json = { message: `Device ${data.deviceToken} not registered.`};
                      res.status(404).send(json);
                      request.ommit=true;             
                      DeviceControls.update(request, res);
                      logger.info(`Unregistered: ${data.deviceName}, deviceToken: ${data.deviceToken} `);    
+                     logger.info("Device saved to db."); 
                      debug( `Unregistered: ${data.deviceName}, deviceToken: ${data.deviceToken} `);      
                   }
                })
@@ -226,8 +230,7 @@ router.get('/checkins/download', authDevice, async (req, res) => {
  
    await req.app.get('Checkin').find({}, usersProjection, function (err, checkins) {
        if (err) {     
-          const logger = log4js.getLogger('error');
-          logger.info("Getting /checkins caught an error: "+err.message);
+          logger.error("Getting /checkins caught an error: "+err.message);
           console.log('caught', err.message);
           res.status(500).json({message: err.message})
        } else {

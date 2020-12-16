@@ -14,7 +14,7 @@ log4js.configure({
       default: { appenders: [ 'multi' ], level: 'debug' }
     }
   });
- const logger = log4js.getLogger('error');
+ const logger = log4js.getLogger('info');
 
 let DeviceController = {
 
@@ -144,7 +144,8 @@ let DeviceController = {
                     return (ommit ?  0 :res.json(device));
                 })
                 .catch(err => {
-                    logger.error(err);
+                    logger.error(err.message);
+                    debug("DeviceController.update("+deviceToken+") err: "+err.message);
                     return (ommit ?  1 :res.status(500).send(err));
                 });
         }

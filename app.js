@@ -8,7 +8,6 @@
 // -----------------------------------------------------------------------
 // 
 //
-//require("dotenv").config();
 var os = require("os");
 const express = require('express');
 const passport = require('passport');
@@ -18,6 +17,10 @@ const flash = require('connect-flash');
 var app = express();
 
 var env = process.env.NODE_ENV || 'development';
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 var httpPort = (process.env.PORT || process.env.VCAP_APP_PORT || 8300);
 var path = require('path');
 var createError = require('http-errors');
@@ -83,7 +86,7 @@ const expressSession = require('express-session')({
   var indexRouter = require('./routes/index');
   var apiRouter = require('./routes/api');
   var dbRouter = require('./routes/db');
-  var debug = require('debug')('users');
+  var debug = require('DEBUG')('users');
   app.enable('trust proxy');
   // view engine setup
   app.set('view engine', 'ejs');
@@ -160,13 +163,14 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-
+console.log ('Note:  set the debug environment variable to get additional console logs:\r\n  d:> $env:DEBUG = "users"\r\n')
 // **********************************
 // Instantiate the HTTP server now
 // **********************************
 var httpServer = http.createServer(app);
 const server = httpServer.listen(httpPort, () => {
   console.log(`Server is running on host ${os.hostname()} @ http://127.0.0.1:${httpPort}`);
+  debug("Debug is on.");
 });
 
 
