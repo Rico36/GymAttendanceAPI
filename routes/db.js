@@ -33,7 +33,7 @@ router.get("/rooms/activate/:rm", isLoggedIn, RoomControls.activate);
 router.get("/rooms/deactivate/:rm", isLoggedIn, RoomControls.deactivate);
 
 router.post("/devices/create", isLoggedIn, DeviceControls.create);
-router.put("/devices/update", DeviceControls.update);
+router.put("/devices/update", isLoggedIn, DeviceControls.update);
 router.delete("/devices/delete", isLoggedIn, DeviceControls.delete);
 router.get("/devices", DeviceControls.all);
 router.get("/devices/:rm", DeviceControls.find);
