@@ -86,7 +86,7 @@ const expressSession = require('express-session')({
   var indexRouter = require('./routes/index');
   var apiRouter = require('./routes/api');
   var dbRouter = require('./routes/db');
-  var debug = require('DEBUG')('users');
+  var debug = require('debug')('users');
   app.enable('trust proxy');
   // view engine setup
   app.set('view engine', 'ejs');
