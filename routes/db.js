@@ -13,7 +13,7 @@ router.get("/", isLoggedIn, function (req, res) {
     res.json( {message:  "ok"});
 });
 
-router.get("/checkins", CheckinControls.all);
+router.get("/checkins", isLoggedIn, CheckinControls.all);
 
 router.post("/members/create", isLoggedIn, MemberControls.create);
 router.put("/members/update", isLoggedIn, MemberControls.update);
@@ -25,7 +25,7 @@ router.get("/members/deactivate/:userid", isLoggedIn, MemberControls.deactivate)
 router.get("/members/:hhsid", isLoggedIn, MemberControls.update);
 
 router.post("/rooms/create", isLoggedIn, RoomControls.create);
-router.put("/rooms/update", RoomControls.update);
+router.put("/rooms/update", isLoggedIn, RoomControls.update);
 router.delete("/rooms/delete", isLoggedIn, RoomControls.delete);
 router.get("/rooms", isLoggedIn, RoomControls.all);
 router.get("/rooms/:rm", isLoggedIn, RoomControls.find);
@@ -35,8 +35,8 @@ router.get("/rooms/deactivate/:rm", isLoggedIn, RoomControls.deactivate);
 router.post("/devices/create", isLoggedIn, DeviceControls.create);
 router.put("/devices/update", isLoggedIn, DeviceControls.update);
 router.delete("/devices/delete", isLoggedIn, DeviceControls.delete);
-router.get("/devices", DeviceControls.all);
-router.get("/devices/:rm", DeviceControls.find);
+router.get("/devices", isLoggedIn, DeviceControls.all);
+router.get("/devices/:rm", isLoggedIn, DeviceControls.find);
 router.get("/devices/activate/:rm", isLoggedIn, DeviceControls.activate);
 router.get("/devices/deactivate/:rm", isLoggedIn,  DeviceControls.deactivate);
 
